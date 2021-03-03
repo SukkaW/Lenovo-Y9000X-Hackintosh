@@ -135,7 +135,8 @@ function init() {
 }
 
 function download() {
-  dGR acidanthera/OpenCorePkg NULL "${OUTDir_TMP}"
+  dGR "acidanthera/OpenCorePkg" NULL "${OUTDir_TMP}"
+
   logger_info "Downloading ${magenta}https://github.com/acidanthera/OcBinaryData/archive/master.zip${reset}"
   curl -# -L -o "${OUTDir_TMP}/OcBinaryData.zip" "https://github.com/acidanthera/OcBinaryData/archive/master.zip" || networkErr "$1"
 }
@@ -230,7 +231,7 @@ download
 unpack
 install
 changelog
-# cTrash
+cTrash
 if [[ "$1" != "NOOPEN" ]]; then
   enjoy
 fi
