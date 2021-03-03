@@ -136,6 +136,7 @@ function init() {
 
 function download() {
   dGR acidanthera/OpenCorePkg NULL "${OUTDir_TMP}"
+  logger_info "Downloading ${magenta}https://github.com/acidanthera/OcBinaryData/archive/master.zip${reset}"
   curl -# -L -o "${OUTDir_TMP}/OcBinaryData.zip" "https://github.com/acidanthera/OcBinaryData/archive/master.zip" || networkErr "$1"
 }
 
@@ -194,6 +195,27 @@ function install() {
   logger_info "Finished construct OpenCore EFI folder!"
 }
 
+function changelog() {
+  logger_info "Showing latest OpenCore Changelog"
+  echo
+
+  while read -r line
+  do
+    [[ $line == "" ]] && break
+
+    echo "$line"
+  done < "${OUTDir_TMP}/Docs/Changelog.md"
+
+  echo
+
+  if [[ -f "../OldSample.plist" ]]; then
+    logger_info "Diff Sample.plist"
+    echo
+    git --no-pager diff --no-index "../OldSample.plist" "${OUTDir_TMP}/Docs/Sample.plist"
+  fi
+  cp -R "${OUTDir_TMP}/Docs/Sample.plist" ../OldSample.plist || copyErr
+}
+
 # Exclude Trash
 function cTrash() {
   rm -rf "${OUTDir_TMP}"
@@ -207,7 +229,8 @@ init
 download
 unpack
 install
-cTrash
+changelog
+# cTrash
 if [[ "$1" != "NOOPEN" ]]; then
   enjoy
 fi
