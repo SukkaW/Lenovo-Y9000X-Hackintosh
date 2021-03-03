@@ -51,31 +51,9 @@ function copyErr() {
 }
 
 # Workaround for Release Binaries that don't include "RELEASE" in their file names (head or grep)
-function h_or_g() {
-  if [[ "$1" == "VoodooI2C" ]]; then
-    hgs=( "head -n 1" )
-  elif [[ "$1" == "CloverBootloader" ]]; then
-    hgs=( "grep -m 1 CloverV2" )
-  elif [[ "$1" == "build-repo" ]]; then
-    hgs=( "grep -A 2 OpenCorePkg | grep -m 1 RELEASE" )
-  elif [[ "$1" == "IntelBluetoothFirmware" ]]; then
-    hgs=( "grep -m 1 IntelBluetooth" )
-  elif [[ "$1" == "itlwm" ]]; then
-    hgs=( "grep -m 1 AirportItlwm-Big_Sur"
-          "grep -m 1 AirportItlwm-Catalina"
-          "grep -m 1 AirportItlwm-High_Sierra"
-          "grep -m 1 AirportItlwm-Mojave"
-        )
-  else
-    hgs=( "grep -m 1 RELEASE" )
-  fi
-}
-
 function dGR() {
   local rawURL
   local urls=()
-
-  h_or_g "$1"
 
   if [[ -n ${3+x} ]]; then
     if [[ "$2" == "PreRelease" ]]; then
@@ -93,14 +71,10 @@ function dGR() {
   if [[ -n ${GITHUB_ACTIONS+x} || ${gh_api} == false ]]; then
     rawURL="https://github.com/$1/releases$tag"
 
-    for hg in "${hgs[@]}"; do
-      urls+=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | eval "${hg}" | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
-    done
+    urls+=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | grep -m 1 RELEASE | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
   else
     rawURL="https://api.github.com/repos/$1/releases$tag"
-    for hg in "${hgs[@]}"; do
-      urls+=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | eval "${hg}" | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
-    done
+    urls+=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | grep -m 1 RELEASE | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
   fi
 
   for url in "${urls[@]}"; do
