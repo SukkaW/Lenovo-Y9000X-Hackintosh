@@ -14,6 +14,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "_XHC1", 0x00001000)
     External (OSDW, MethodObj) // 0 Arguments
     External (DTGP, MethodObj) // 5 Arguments
     External (_SB.PCI0.XHC_, DeviceObj)
+    External (_SB.PCI0.XHC_.RHUB, DeviceObj)
+    External (_SB.PCI0.XHC_.RHUB.HS08, DeviceObj)
 
     Scope (\_SB)
     {
@@ -76,12 +78,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "_XHC1", 0x00001000)
             Method (MODU, 0, Serialized)
             {
                 Local0 = One
-
-                // Thunderbolt Part
-                If (CondRefOf (\_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU))
-                {
-                    Local0 = (\_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU ())
-                }
 
                 Return (Local0)
             }

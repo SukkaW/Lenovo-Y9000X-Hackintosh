@@ -11,6 +11,7 @@ DefinitionBlock ("", "SSDT", 2, "CORP", "XCPM", 0x00003000)
     Scope (\_SB.PR00)
     {
         If (OSDW ())
+        {
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
                 If (!Arg2)

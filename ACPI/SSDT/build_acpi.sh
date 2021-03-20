@@ -52,7 +52,7 @@ function init() {
   if [[ -f "iasl-stable" ]]; then
     rm -rf "iasl-stable"
   fi
-  if [[ -f "AML" ]]; then
+  if [[ -d "AML" ]]; then
     rm -rf "AML"
   fi
   mkdir -p AML
