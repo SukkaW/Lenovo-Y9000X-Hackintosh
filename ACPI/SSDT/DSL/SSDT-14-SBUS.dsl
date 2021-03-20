@@ -1,6 +1,7 @@
 //
 DefinitionBlock ("", "SSDT", 2, "OCLT", "SBUS", 0)
 {
+    External (OSDW, MethodObj) // 0 Arguments
     External (_SB_.PCI0.SBUS, DeviceObj)
 
     Scope (_SB.PCI0.SBUS)
@@ -32,7 +33,7 @@ DefinitionBlock ("", "SSDT", 2, "OCLT", "SBUS", 0)
             }
             Method (_STA, 0, NotSerialized)
             {
-                If (_OSI ("Darwin"))
+                If (OSDW ())
                 {
                     Return (0x0F)
                 }

@@ -1,17 +1,9 @@
 // I2C
 DefinitionBlock("", "SSDT", 2, "SUKA", "GPI0", 0)
 {
+    External (OSDW, MethodObj) // 0 Arguments
     External (_SB_.PCI0.I2C1, DeviceObj)
-    External (TPDD, UnknownObj)
     External (TPDF, UnknownObj)
-
-    Scope (\)
-    {
-        If (_OSI ("Darwin"))
-        {
-            TPDD = One
-        }
-    }
 
     Scope (_SB.PCI0.I2C1)
     {
@@ -219,7 +211,7 @@ DefinitionBlock("", "SSDT", 2, "SUKA", "GPI0", 0)
 
             Method (_STA, 0, NotSerialized)
             {
-                If (_OSI ("Darwin"))
+                If (OSDW ())
                 {
                     Return (0x0F)
                 }

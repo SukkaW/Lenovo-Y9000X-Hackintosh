@@ -5,6 +5,8 @@
  */
 DefinitionBlock ("", "SSDT", 2, "ACDT", "ALS0", 0x00000000)
 {
+    External (OSDW, MethodObj) // 0 Arguments
+
     Scope (_SB)
     {
         Device (ALS0)
@@ -22,7 +24,7 @@ DefinitionBlock ("", "SSDT", 2, "ACDT", "ALS0", 0x00000000)
             })
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
-                If (_OSI ("Darwin"))
+                If (OSDW ())
                 {
                     Return (0x0F)
                 }

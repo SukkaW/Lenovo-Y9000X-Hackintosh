@@ -1,6 +1,8 @@
 //Add MEM2
 DefinitionBlock ("", "SSDT", 2, "OCLT", "MEM2", 0)
 {
+    External (OSDW, MethodObj) // 0 Arguments
+
     Device (MEM2)
     {
         Name (_HID, EisaId ("PNP0C01"))
@@ -23,7 +25,7 @@ DefinitionBlock ("", "SSDT", 2, "OCLT", "MEM2", 0)
         
         Method (_STA, 0, NotSerialized)
         {
-            If (_OSI ("Darwin"))
+            If (OSDW ())
             {
                 Return (0x0F)
             }

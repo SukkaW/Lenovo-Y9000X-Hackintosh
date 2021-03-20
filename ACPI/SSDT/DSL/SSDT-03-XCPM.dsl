@@ -3,10 +3,14 @@
  */
 DefinitionBlock ("", "SSDT", 2, "CORP", "XCPM", 0x00003000)
 {
+    // From SSDT-00-DAWRIN
+    External (OSDW, MethodObj)
+
     External (\_SB.PR00, ProcessorObj)
+
     Scope (\_SB.PR00)
     {
-        If (_OSI ("Darwin")) {
+        If (OSDW ())
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
                 If (!Arg2)
@@ -18,7 +22,7 @@ DefinitionBlock ("", "SSDT", 2, "CORP", "XCPM", 0x00003000)
                 }
                 Return (Package (0x02)
                 {
-                    "plugin-type", 
+                    "plugin-type",
                     One
                 })
             }

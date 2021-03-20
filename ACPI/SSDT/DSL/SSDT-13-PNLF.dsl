@@ -1,6 +1,8 @@
 //
 DefinitionBlock("", "SSDT", 2, "OCLT", "PNLF", 0)
 {
+    External (OSDW, MethodObj) // 0 Arguments
+
     Scope(_SB)
     {
         Device(PNLF)
@@ -12,7 +14,7 @@ DefinitionBlock("", "SSDT", 2, "OCLT", "PNLF", 0)
             Name(_UID, 19)
             Method (_STA, 0, NotSerialized)
             {
-                If (_OSI ("Darwin"))
+                If (OSDW ())
                 {
                     Return (0x0B)
                 }
@@ -21,7 +23,7 @@ DefinitionBlock("", "SSDT", 2, "OCLT", "PNLF", 0)
                     Return (Zero)
                 }
             }
-        }        
+        }
     }
 }
 //EOF

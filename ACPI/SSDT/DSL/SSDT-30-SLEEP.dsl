@@ -79,9 +79,9 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
             // ATTENTION! Use your own value from DSDT always!
             Name (\_S3, Package (0x04)  // _S3_: S3 System State
             {
-              0x05, 
-              Zero, 
-              Zero, 
+              0x05,
+              Zero,
+              Zero,
               Zero
             })
 
@@ -92,7 +92,7 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
 
     // SLTP named on OSX but already taken on ThinkPad.
     // Use XLTP to prevent any potential confliction.
-    Name (XLTP, Zero)  
+    Name (XLTP, Zero)
 
     // Save sleep-state in XLTP on transition. Like a genuine Mac.
     Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
@@ -133,7 +133,6 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
     External (_SB.PCI0.LPCB.EC0.LIDF, FieldUnitObj)
     External (_SB.PCI0.LPCB.LID0.PLID, IntObj)
     External (PWRS, FieldUnitObj)
-    External (TBTS, FieldUnitObj)
 
     Scope (\)
     {
@@ -286,11 +285,6 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
         // Enable ACPI-S0-DeepIdle
         Method (LPS0, 0, NotSerialized)
         {
-            If (DIEN == One)
-            {
-                // Debug = "SLEEP: Enable S0-Sleep / DeepSleep"
-            }
-
             // If S0ID is enabled, enable deep-sleep in OSX. Can be set above.
             // Return (S0ID)
             Return (DIEN)

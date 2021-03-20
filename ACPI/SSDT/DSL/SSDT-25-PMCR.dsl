@@ -1,6 +1,7 @@
 //Add PMCR
 DefinitionBlock ("", "SSDT", 2, "OCLT", "PMCR", 0)
 {
+    External (OSDW, MethodObj) // 0 Arguments
     External(_SB.PCI0.LPCB, DeviceObj)
     Scope (_SB.PCI0.LPCB)
     {
@@ -17,7 +18,7 @@ DefinitionBlock ("", "SSDT", 2, "OCLT", "PMCR", 0)
             })
             Method (_STA, 0, NotSerialized)
             {
-                If (_OSI ("Darwin"))
+                If (OSDW ())
                 {
                     Return (0x0B)
                 }

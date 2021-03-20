@@ -15,9 +15,12 @@
 //
 DefinitionBlock("", "SSDT", 2, "OCLT", "XOSI", 0)
 {
+    // From SSDT-00-DAWRIN
+    External (OSDW, MethodObj)
+
     Method(XOSI, 1)
     {
-        If (_OSI ("Darwin"))
+        If (OSDW ())
         {
             // With "Windows 2015", OSYS will be 0x07DF
             // which will match native value of darwin
@@ -25,13 +28,11 @@ DefinitionBlock("", "SSDT", 2, "OCLT", "XOSI", 0)
             {
                 Return (0xFFFFFFFF)
             }
-            
             Else
             {
                 Return (Zero)
             }
         }
-        
         Else
         {
             Return (_OSI (Arg0))
