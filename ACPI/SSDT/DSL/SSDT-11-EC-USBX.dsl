@@ -22,7 +22,11 @@
  */
 DefinitionBlock ("", "SSDT", 2, "ACDT", "SsdtEC", 0x00001000)
 {
+    External (OSDW, MethodObj) // 0 Arguments
+    External (DTGP, MethodObj) // 5 Arguments
     External (_SB_.PCI0.LPCB, DeviceObj)
+    External (\_SB_.PCI0.XHC_.RHUB, DeviceObj)
+    External (\_SB_.PCI0.XHC_.RHUB.HS08, DeviceObj)
 
     Scope (\_SB)
     {
@@ -39,17 +43,19 @@ DefinitionBlock ("", "SSDT", 2, "ACDT", "SsdtEC", 0x00001000)
                     })
                 }
 
-                Return (Package (0x08)
-                {
-                    "kUSBSleepPowerSupply",
-                    0x13EC,
-                    "kUSBSleepPortCurrentLimit",
-                    0x0834,
-                    "kUSBWakePowerSupply",
-                    0x13EC,
-                    "kUSBWakePortCurrentLimit",
-                    0x0834
-                })
+                Local0 = Package ()
+                    {
+                        "kUSBSleepPortCurrentLimit",
+                        2100,
+                        "kUSBWakePortCurrentLimit",
+                        2100,
+                        "kUSBSleepPowerSupply",
+                        5100,
+                        "kUSBWakePowerSupply",
+                        5100,
+                    }
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
             }
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
@@ -81,6 +87,26 @@ DefinitionBlock ("", "SSDT", 2, "ACDT", "SsdtEC", 0x00001000)
                     Return (Zero)
                 }
             }
+        }
+    }
+
+    Scope (\_SB_.PCI0.XHC_.RHUB) {
+        Scope (HS08) { // Deactivate Fingerprint reader
+            Method (_STA, 0, NotSerialized)  // _STA: Status
+            {
+                If (OSDW ())
+                {
+                    Return (Zero) // disabled on OSX
+                }
+
+                Return (0xF) // enabled on others
+            }
+        }
+
+        // Enable SuperDrive
+        Method (MBSD, 0, NotSerialized)
+        {
+            Return (One)
         }
     }
 }

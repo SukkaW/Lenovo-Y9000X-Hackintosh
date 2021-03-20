@@ -19,8 +19,9 @@ DefinitionBlock("", "SSDT", 2, "OCLT", "XOSI", 0)
     {
         If (_OSI ("Darwin"))
         {
-            If (Arg0 == "Windows 2018"  // Provided by DSDT
-                )
+            // With "Windows 2015", OSYS will be 0x07DF
+            // which will match native value of darwin
+            If (Arg0 == "Windows 2015")
             {
                 Return (0xFFFFFFFF)
             }
