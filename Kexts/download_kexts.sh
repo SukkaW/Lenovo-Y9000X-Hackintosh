@@ -40,7 +40,6 @@ KEXT_ITEMS=(
     "Kexts/SMCBatteryManager.kext"
     "Kexts/SMCLightSensor.kext"
     "Kexts/SMCProcessor.kext"
-    "Kexts/SMCSuperIO.kext"
     "Kexts/VirtualSMC.kext"
     "BrcmBluetoothInjector.kext"
     "BrcmFirmwareData.kext"
