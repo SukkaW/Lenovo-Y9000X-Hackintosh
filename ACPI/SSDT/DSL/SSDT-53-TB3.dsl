@@ -1,11 +1,30 @@
+/*
+ * Intel ACPI Component Architecture
+ * AML/ASL+ Disassembler version 20200925 (64-bit version)
+ * Copyright (c) 2000 - 2020 Intel Corporation
+ * 
+ * Disassembling to symbolic ASL+ operators
+ *
+ * Disassembly of iASLiW05Ov.aml, Sun Mar 21 03:23:05 2021
+ *
+ * Original Table Header:
+ *     Signature        "SSDT"
+ *     Length           0x00000848 (2120)
+ *     Revision         0x02
+ *     Checksum         0x3C
+ *     OEM ID           "SUKA"
+ *     OEM Table ID     "TBT3"
+ *     OEM Revision     0x00000000 (0)
+ *     Compiler ID      "INTL"
+ *     Compiler Version 0x20200925 (538970405)
+ */
 DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
 {
     External (_SB_.PCI0, DeviceObj)
     External (_SB_.PCI0.RP17, DeviceObj)
     External (_SB_.PCI0.RP17.PXSX, DeviceObj)
-
-    External (OSDW, MethodObj) // 0 Arguments
-    External (DTGP, MethodObj) // 5 Arguments
+    External (DTGP, MethodObj)    // 5 Arguments
+    External (OSDW, MethodObj)    // 0 Arguments
 
     If (OSDW ())
     {
@@ -195,9 +214,9 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
                                     }, 
 
                                     "device_type", 
-                                    Buffer (0x17)
+                                    Buffer (0x19)
                                     {
-                                        "Thunderbolt-Controller"
+                                        "Thunderbolt 3 Controller"
                                     }, 
 
                                     "ThunderboltDROM", 
@@ -585,3 +604,4 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
         }
     }
 }
+

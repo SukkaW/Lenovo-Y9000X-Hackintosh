@@ -2,8 +2,8 @@
 DefinitionBlock ("", "SSDT", 2, "OCLT", "PPMC", 0)
 {
     External (OSDW, MethodObj) // 0 Arguments
-
     External (_SB.PCI0, DeviceObj)
+
     Scope (_SB.PCI0)
     {
         Device (PPMC)
