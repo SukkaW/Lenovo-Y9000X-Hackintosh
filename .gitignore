@@ -3,3 +3,4 @@ ACPI/SSDT/AML
 Kexts/Download
 OpenCore/EFI
 Output
+Config/config.plist
