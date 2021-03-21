@@ -1,30 +1,11 @@
-/*
- * Intel ACPI Component Architecture
- * AML/ASL+ Disassembler version 20200925 (64-bit version)
- * Copyright (c) 2000 - 2020 Intel Corporation
- * 
- * Disassembling to symbolic ASL+ operators
- *
- * Disassembly of iASLiW05Ov.aml, Sun Mar 21 03:23:05 2021
- *
- * Original Table Header:
- *     Signature        "SSDT"
- *     Length           0x00000848 (2120)
- *     Revision         0x02
- *     Checksum         0x3C
- *     OEM ID           "SUKA"
- *     OEM Table ID     "TBT3"
- *     OEM Revision     0x00000000 (0)
- *     Compiler ID      "INTL"
- *     Compiler Version 0x20200925 (538970405)
- */
 DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
 {
+    External (DTGP, MethodObj)    // 5 Arguments
+    External (OSDW, MethodObj)    // 0 Arguments
+
     External (_SB_.PCI0, DeviceObj)
     External (_SB_.PCI0.RP17, DeviceObj)
     External (_SB_.PCI0.RP17.PXSX, DeviceObj)
-    External (DTGP, MethodObj)    // 5 Arguments
-    External (OSDW, MethodObj)    // 0 Arguments
 
     If (OSDW ())
     {
@@ -214,15 +195,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
                                     }, 
 
                                     "device_type", 
-                                    Buffer (0x19)
+                                    Buffer (0x17)
                                     {
-                                        "Thunderbolt 3 Controller"
+                                        "Thunderbolt-Controller"
                                     }, 
 
                                     "ThunderboltDROM", 
                                     Buffer (0x6E)
                                     {
-                                        /* 0000 */  0x31, 0x00, 0x45, 0x65, 0x18, 0x4F, 0x58, 0xC3,  // 1.Ee.OX.
+                                        /* 0000 */  0x36, 0x00, 0x98, 0x76, 0xD5, 0x24, 0x64, 0x14,  // 6..v.$d.
                                         /* 0008 */  0x00, 0xD9, 0xB5, 0xAB, 0x32, 0x01, 0x61, 0x00,  // ....2.a.
                                         /* 0010 */  0x27, 0x01, 0x11, 0x20, 0x01, 0x01, 0x08, 0x81,  // '.. ....
                                         /* 0018 */  0x80, 0x02, 0x80, 0x00, 0x00, 0x00, 0x08, 0x82,  // ........
@@ -604,4 +585,3 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
         }
     }
 }
-

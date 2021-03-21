@@ -13,7 +13,7 @@
 //
 // Search _OSI......
 //
-DefinitionBlock("", "SSDT", 2, "OCLT", "XOSI", 0)
+DefinitionBlock("", "SSDT", 2, "SUKA", "XOSI", 0)
 {
     // From SSDT-00-DAWRIN
     External (OSDW, MethodObj)

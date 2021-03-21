@@ -1,4 +1,4 @@
-DefinitionBlock ("", "SSDT", 2, "SUKA", "AWAC", 0x00000000)
+DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
 {
     // From SSDT-00-DAWRIN
     External (OSDW, MethodObj)

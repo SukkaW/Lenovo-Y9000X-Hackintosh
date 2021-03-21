@@ -9,13 +9,17 @@
 //
 // Reference: https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
 //
-DefinitionBlock ("", "SSDT", 2, "SUKA", "_XHC1", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
 {
     External (OSDW, MethodObj) // 0 Arguments
     External (DTGP, MethodObj) // 5 Arguments
     External (_SB.PCI0.XHC_, DeviceObj)
     External (_SB.PCI0.XHC_.RHUB, DeviceObj)
     External (_SB.PCI0.XHC_.RHUB.HS08, DeviceObj)
+    External (_SB.PCI0.RP17.PXSX.DSB2.XHC2, DeviceObj)
+    External (_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
+    External (_SB.PCI0.RP17.UPN1, IntObj)
+    External (_SB.PCI0.RP17.UPN2, IntObj)
 
     Scope (\_SB)
     {
@@ -78,6 +82,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "_XHC1", 0x00001000)
             Method (MODU, 0, Serialized)
             {
                 Local0 = One
+
+                If (CondRefOf (\_SB.PCI0.RP09.PXSX.DSB2.XHC2.MODU))
+                {
+                    Local0 = (\_SB.PCI0.RP09.PXSX.DSB2.XHC2.MODU ())
+                }
 
                 Return (Local0)
             }

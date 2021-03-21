@@ -45,7 +45,7 @@
  * Rewritten by @SukkaW (https://skk.moe) for Y9000X
  */
 
-DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
 {
     // Common utils from SSDT-00-DARWIN
     External (DTGP, MethodObj) // 5 Arguments
@@ -116,8 +116,6 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
     External (_SB.PCI0.LPCB.LID0, DeviceObj)
 
     External (_SB.PCI0.LPCB.EC0.ACAD._PSR, MethodObj) // 0 Arguments
-    // Custom Thuderbolt Patch
-    // External (_SB.PCI0.RP09.UPSB.LSTX, MethodObj) // 2 Arguments
     External (_SB.PCI0.XHC.USBM, MethodObj) // 0 Arguments
     External (XPRW, MethodObj) // 2 ARguments
     External (ZPTS, MethodObj) // 1 Arguments
@@ -196,18 +194,6 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_Sleep", 0x00001000)
                     {
                         \_SB.PCI0.HDAS.PMEE = Zero
                     }
-
-                    // If (CondRefOf (\_SB.PCI0.XHC.USBM))
-                    // {
-                    //     \_SB.PCI0.XHC.USBM ()
-                    // }
-
-                    // If (CondRefOf (\_SB.PCI0.RP09.UPSB.LSTX))
-                    // {
-                    //     Debug = "SLEEP:_PTS: Call TB-LSTX"
-                    //     \_SB.PCI0.RP09.UPSB.LSTX (Zero, One)
-                    //     \_SB.PCI0.RP09.UPSB.LSTX (One, One)
-                    // }
                 }
             }
         }

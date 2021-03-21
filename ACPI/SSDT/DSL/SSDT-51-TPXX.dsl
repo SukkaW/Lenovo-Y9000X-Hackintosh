@@ -1,5 +1,5 @@
 // I2C
-DefinitionBlock("", "SSDT", 2, "SUKA", "GPI0", 0)
+DefinitionBlock("", "SSDT", 2, "SUKA", "TPXX", 0)
 {
     External (OSDW, MethodObj) // 0 Arguments
     External (_SB_.PCI0.I2C1, DeviceObj)
