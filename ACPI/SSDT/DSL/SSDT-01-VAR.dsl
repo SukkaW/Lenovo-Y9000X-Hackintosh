@@ -17,7 +17,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "AWAC", 0x00000000)
             // Force STAS to One in order to disable AWAC and enable RTC
             STAS = One
             // Force HPTE to 0 in order to disable HPET Device
-            HPTE = 0
+            // DO NOT DISABLE HPTE as it is relied on Y9000X audio under Windows
+            // HPTE = 0
             // Force DPTF to 0 in order to disable DPTF Framework
             DPTF = 0
             // Force GPHD to 2 in order to enable GPI0 device
