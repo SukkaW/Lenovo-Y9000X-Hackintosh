@@ -83,11 +83,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
             {
                 Local0 = One
 
-                If (CondRefOf (\_SB.PCI0.RP09.PXSX.DSB2.XHC2.MODU))
-                {
-                    Local0 = (\_SB.PCI0.RP09.PXSX.DSB2.XHC2.MODU ())
-                }
-
                 Return (Local0)
             }
 
