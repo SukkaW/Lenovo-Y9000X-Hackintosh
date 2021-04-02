@@ -48,7 +48,7 @@ cp -R ./OpenCore/EFI ./Output || copyErr
 cp -R ./ACPI/SSDT/AML/* ./Output/EFI/OC/ACPI/ || copyErr
 cp -R ./Kexts/Download/. ./Output/EFI/OC/Kexts || copyErr
 cp -R ./Kexts/Local/. ./Output/EFI/OC/Kexts || copyErr
-# cp -R ./Drivers/. ./Output/EFI/OC/Drivers || copyErr
+cp -R ./Drivers/. ./Output/EFI/OC/Drivers || copyErr
 cp -R ./Config/ ./Output/EFI/OC/ || copyErr
 
 logger_info "Done!"
