@@ -116,6 +116,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     External (_SB.PCI0.LPCB.LID0, DeviceObj)
 
     External (_SB.PCI0.LPCB.EC0.ACAD._PSR, MethodObj) // 0 Arguments
+    // EC Query Method used to Notify Battery & AC in OEM DSDT
+    External (_SB.PCI0.LPCB.EC0.Q37, MethodObj)
     External (_SB.PCI0.XHC.USBM, MethodObj) // 0 Arguments
     External (XPRW, MethodObj) // 2 ARguments
     External (ZPTS, MethodObj) // 1 Arguments
@@ -158,6 +160,9 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
 
             // Update ac-state
             \PWRS = \_SB.PCI0.LPCB.EC0.ACAD._PSR ()
+
+            // Call OEM Q37 Method
+            _SB.PCI0.LPCB.EC0.Q37 ()
         }
 
         If (CondRefOf (\ZPTS))
