@@ -162,7 +162,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
             \PWRS = \_SB.PCI0.LPCB.EC0.ACAD._PSR ()
 
             // Call OEM Q37 Method
-            _SB.PCI0.LPCB.EC0.Q37 ()
+            \_SB.PCI0.LPCB.EC0.Q37 ()
         }
 
         If (CondRefOf (\ZPTS))
