@@ -24,7 +24,6 @@ GH_KEXTS=(
     "acidanthera/BrightnessKeys"
     "acidanthera/NVMeFix"
     "al3xtjames/NoTouchID"
-    "hieplpvip/AppleBacklightSmoother"
 )
 
 KEXT_ITEMS=(
@@ -48,7 +47,6 @@ KEXT_ITEMS=(
     "BrightnessKeys.kext"
     "Release/Sinetek-rtsx.kext"
     "NVMeFix.kext"
-    "AppleBacklightSmoother.kext"
 )
 
 RETRY_MAX=5
