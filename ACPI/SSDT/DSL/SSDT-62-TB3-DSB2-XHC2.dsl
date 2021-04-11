@@ -36,7 +36,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
             Device (XHC2)
             {
                 Name (_ADR, Zero)  // _ADR: Address
-
                 OperationRegion (A1E0, PCI_Config, Zero, 0x40)
                 Field (A1E0, ByteAcc, NoLock, Preserve)
                 {

@@ -36,7 +36,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
         Method (NTFY, 2, Serialized)
         {
             // Patch only if in windows native mode and OSX
-            If (OSDW () && (\TWIN != Zero) && (NOHP == 0x01) && Arg0 == 0x11 && Arg1 == One)
+            If (OSDW () && (\TWIN != Zero) && (NOHP == 0x01) && Arg0 == 0x11)
             {
                 \_SB.PCI0.RP17.PXSX.AMPE () // Notify UPSB
             }
@@ -973,7 +973,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 // if CIO force power is zero
                 If (\_SB.PCI0.RP17.PSTA () == Zero)
-                // If ((GGOV (0x02060000) == Zero) && (GGDV (0x02060000) == Zero))
                 {
                     PSTX = Zero
 
@@ -1431,8 +1430,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         PCED () // enable downlink
 
                         // some magical commands to CIO
-                        CRMW (0x013E, Zero, 0x02, 0x0200, 0x0200)
-                        CRMW (0x023E, Zero, 0x02, 0x0200, 0x0200)
+                        CRMW (0x0150, Zero, 0x02, 0x04000000, 0x04000000)
+                        CRMW (0x0250, Zero, 0x02, 0x04000000, 0x04000000)
 
                         ^^TBST ()
                     }
@@ -1778,8 +1777,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     Method (PCDA, 0, Serialized)
                     {
-                        Debug = "TB:DSB0:PCDA"
-
                         If (POFX () != Zero)
                         {
                             PCIA = Zero
@@ -2011,7 +2008,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         {
                         }
 
-Method (TRPE, 2, Serialized)
+                        Method (TRPE, 2, Serialized)
                         {
                             Debug = Concatenate ("TB:NHI0:TRPE called with Arg0: ", Arg0)
                             Debug = Concatenate ("TB:NHI0:TRPE called with Arg1: ", Arg1)
@@ -2048,7 +2045,6 @@ Method (TRPE, 2, Serialized)
                                 {
                                     Local0 = Zero
 
-                                    // If ((GGOV (0x02060000) == Zero) && (GGDV (0x02060000) == Zero))
                                     If (\_SB.PCI0.RP17.PSTA () == Zero)
                                     {
                                         \_SB.PCI0.RP17.PSTX = Zero
@@ -2107,8 +2103,6 @@ Method (TRPE, 2, Serialized)
 
                                             Local0++
 
-                                            // SGOV (0x02060000, Zero)
-                                            // SGDO (0x02060000)
                                             Sleep (0x03E8)
                                         }
 
@@ -2159,36 +2153,26 @@ Method (TRPE, 2, Serialized)
                             Return (Zero)
                         }
 
-Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+                        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                         {
                             Local0 = Package ()
                                 {
-                                    // Thinkpad X1 original FW, switched port 5, loading
                                     "ThunderboltDROM",
                                     Buffer ()
                                     {
-                                        /* 0x00     */  0x61,                                           // CRC8 checksum: 0x61
-                                        /* 0x01     */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x01, // Thunderbolt Bus 0, UID: 0x0109000000000000
-                                        /* 0x09     */  0x9a, 0x6d, 0x64, 0x0c,                         // CRC32c checksum: 0x0C646D9A
-                                        /* 0x0D     */  0x01,                                           // Device ROM Revision: 1
-                                        /* 0x0E     */  0x62, 0x00,                                     // Length: 98 (starting from previous byte)
-                                        /* 0x10     */  0x09, 0x01,                                     // Vendor ID: 0x109
-                                        /* 0x12     */  0x06, 0x17,                                     // Device ID: 0x1706
-                                        /* 0x14     */  0x01,                                           // Device Revision: 0x1
-                                        /* 0x15     */  0x21,                                           // EEPROM Revision: 33
-                                        /* 0x16   1 */  0x08, 0x81, 0x80, 0x02, 0x80, 0x00, 0x00, 0x00,
-                                        /* 0x1E   2 */  0x08, 0x82, 0x90, 0x01, 0x80, 0x00, 0x00, 0x00,
-                                        /* 0x26   3 */  0x08, 0x83, 0x80, 0x04, 0x80, 0x01, 0x00, 0x00,
-                                        /* 0x2E   4 */  0x08, 0x84, 0x90, 0x03, 0x80, 0x01, 0x00, 0x00,
-                                        /* 0x36   5 */  0x02, 0x85,
-                                        /* 0x38   6 */  0x0b, 0x86, 0x20, 0x01, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                        /* 0x43   7 */  0x03, 0x87, 0x80, // PCIe xx:04.0
-                                        /* 0x46   8 */  0x05, 0x88, 0x50, 0x40, 0x00,
-                                        /* 0x4B   9 */  0x05, 0x89, 0x50, 0x00, 0x00,
-                                        /* 0x50   A */  0x05, 0x8a, 0x50, 0x00, 0x00,
-                                        /* 0x55   B */  0x05, 0x8b, 0x50, 0x40, 0x00,
-                                        /* 0x5A   1 */  0x09, 0x01, 0x4c, 0x65, 0x6e, 0x6f, 0x76, 0x6f, 0x00, // Vendor Name: "Lenovo"
-                                        /* 0x63   2 */  0x0c, 0x02, 0x58, 0x31, 0x20, 0x43, 0x61, 0x72, 0x62, 0x6f, 0x6e, 0x00, // Device Name: "X1 Carbon"
+                                        /* 0000 */  0xC0, 0x00, 0x9D, 0xB1, 0x49, 0x6E, 0x97, 0x18,  // ....In..
+                                        /* 0008 */  0x00, 0xC7, 0xC0, 0x3D, 0x42, 0x01, 0x59, 0x00,  // ...=B.Y.
+                                        /* 0010 */  0x27, 0x01, 0x11, 0x20, 0x01, 0x01, 0x08, 0x81,  // '.. ....
+                                        /* 0018 */  0x80, 0x02, 0x80, 0x00, 0x00, 0x00, 0x08, 0x82,  // ........
+                                        /* 0020 */  0x90, 0x01, 0x80, 0x00, 0x00, 0x00, 0x02, 0xC3,  // ........
+                                        /* 0028 */  0x02, 0xC4, 0x05, 0x85, 0x50, 0x00, 0x00, 0x05,  // ....P...
+                                        /* 0030 */  0x86, 0x50, 0x00, 0x00, 0x02, 0x87, 0x0B, 0x88,  // .P......
+                                        /* 0038 */  0x20, 0x01, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00,  //  ..d....
+                                        /* 0040 */  0x00, 0x03, 0x89, 0x80, 0x02, 0xCA, 0x02, 0xCB,  // ........
+                                        /* 0048 */  0x09, 0x01, 0x4C, 0x65, 0x6E, 0x6F, 0x76, 0x6F,  // ..Lenovo
+                                        /* 0050 */  0x00, 0x15, 0x02, 0x4C, 0x45, 0x47, 0x49, 0x4F,  // ...LEGIO
+                                        /* 0058 */  0x4E, 0x20, 0x59, 0x39, 0x30, 0x30, 0x30, 0x58,  // N Y9000X
+                                        /* 0060 */  0x20, 0x32, 0x30, 0x32, 0x30, 0x00               //  2020.
                                     },
 
                                     "ThunderboltConfig", 
