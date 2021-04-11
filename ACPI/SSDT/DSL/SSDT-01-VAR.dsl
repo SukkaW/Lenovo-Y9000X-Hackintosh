@@ -18,15 +18,13 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
             // Force STAS to One in order to disable AWAC and enable RTC
             STAS = One
             // Force HPTE to 0 in order to disable HPET Device
-            // DO NOT DISABLE HPTE as it is relied on Y9000X audio under Windows
-            // HPTE = 0
+            HPTE = 0
             // Force DPTF to 0 in order to disable DPTF Framework
             DPTF = 0
             // Force GPHD to 2 in order to enable GPI0 device
             GPHD = 2
             // Force TPDD to One inorder to disable I2C1.TPAD device (while it will enable PS2M device)
-            // TPDD = One
-
+            TPDD = One
             // Enable APIC Interrupt Mode
             USTP = One
             // Patch OSYS to native value of darwin
