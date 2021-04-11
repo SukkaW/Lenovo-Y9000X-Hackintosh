@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Action
+tput clear
+cd $(dirname "$0")
+./uefiTableExtract.pl
+
+# Game Over
+tput clear
+osascript -e 'quit app "Terminal"'

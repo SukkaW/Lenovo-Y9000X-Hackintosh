@@ -1,0 +1,3 @@
+#!/bin/bash
+launcher=$(dirname "$0")'/Uefi Table Extract'
+open -a Terminal "$launcher"

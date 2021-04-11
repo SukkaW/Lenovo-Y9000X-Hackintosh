@@ -15,7 +15,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
     External (DTGP, MethodObj) // 5 Arguments
     External (_SB.PCI0.XHC_, DeviceObj)
     External (_SB.PCI0.XHC_.RHUB, DeviceObj)
+
+    External (_SB.PCI0.XHC_.RHUB.HS03, DeviceObj)
+    External (_SB.PCI0.XHC_.RHUB.HS05, DeviceObj)
     External (_SB.PCI0.XHC_.RHUB.HS08, DeviceObj)
+
     External (_SB.PCI0.RP17.PXSX.DSB2.XHC2, DeviceObj)
     External (_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
     External (_SB.PCI0.RP17.UPN1, IntObj)
@@ -28,28 +32,21 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
             Name (_ADR, Zero)  // _ADR: Address
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
-                If ((Arg2 == Zero))
-                {
-                    Return (Buffer (One)
-                    {
-                        0x03                                             // .
-                    })
-                }
-
                 Local0 = Package ()
                     {
-                        "kUSBSleepPortCurrentLimit",
+                        "kUSBSleepPortCurrentLimit", 
+                        2100, 
+                        "kUSBWakePortCurrentLimit", 
                         2100,
-                        "kUSBWakePortCurrentLimit",
-                        2100,
-                        "kUSBSleepPowerSupply",
-                        5100,
-                        "kUSBWakePowerSupply",
-                        5100,
+                        "kUSBSleepPowerSupply", 
+                        5100, 
+                        "kUSBWakePowerSupply", 
+                        5100, 
                     }
                 DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                 Return (Local0)
             }
+
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
                 If (OSDW ())
@@ -83,6 +80,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
             {
                 Local0 = One
 
+                If (CondRefOf (\_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU))
+                {
+                    Local0 = (\_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU ())
+                }
+
                 Return (Local0)
             }
 
@@ -106,6 +108,72 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
 
             Scope (RHUB)
             {
+                Scope (HS03) // Front USB-C-Port, weired config, needs investigation
+                {
+                    If (CondRefOf (\_SB.PCI0.RP17.PXSX.DSB2.XHC2))
+                    {
+                        Name (SSP, Package (0x02)
+                        {
+                            "XHC2", 
+                            0x03
+                        })
+                        Name (SS, Package (0x02)
+                        {
+                            "XHC2", 
+                            0x03
+                        })
+
+                        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+                        {
+                            Local0 = Package (0x01) {}
+
+                            If (CondRefOf (\_SB.PCI0.RP17.UPN2))
+                            {
+                                Local0 = Package (0x02) {
+                                    "UsbCPortNumber", 
+                                    \_SB.PCI0.RP17.UPN1
+                                }
+                            }
+
+                            DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                            Return (Local0)
+                        }
+                    }
+                }
+
+                Scope (HS05) // Back USB-C-Port, weired config, needs investigation
+                {
+                    If (CondRefOf (\_SB_.PCI0.RP17.PXSX.DSB2.XHC2))
+                    {
+                        Name (SSP, Package (0x02)
+                        {
+                            "XHC2", 
+                            0x04
+                        })
+                        Name (SS, Package (0x02)
+                        {
+                            "XHC2", 
+                            0x04
+                        })
+
+                        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+                        {
+                            Local0 = Package (0x01) {}
+
+                            If (CondRefOf (\_SB.PCI0.RP17.UPN2))
+                            {
+                                Local0 = Package (0x02) {
+                                    "UsbCPortNumber", 
+                                    \_SB.PCI0.RP17.UPN2
+                                }
+                            }
+
+                            DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                            Return (Local0)
+                        }
+                    }
+                }
+
                 Scope (HS08) { // Deactivate Fingerprint reader
                     Method (_STA, 0, NotSerialized)  // _STA: Status
                     {
