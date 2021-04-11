@@ -8,6 +8,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
     External (DPTF, IntObj)
     External (OSYS, FieldUnitObj)
     External (GPHD, FieldUnitObj)
+    External (USTP, FieldUnitObj)
     External (TPDD, UnknownObj)
 
     Scope (\)
@@ -24,7 +25,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
             // Force GPHD to 2 in order to enable GPI0 device
             GPHD = 2
             // Force TPDD to One inorder to disable I2C1.TPAD device (while it will enable PS2M device)
-            TPDD = One
+            // TPDD = One
+
+            // Enable APIC Interrupt Mode
+            USTP = One
             // Patch OSYS to native value of darwin
             // Pair with SSDT-03-XOSI to make sure it works
             OSYS = 0x07DF

@@ -7,6 +7,26 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TBT3", 0x00000000)
     External (_SB_.PCI0.RP17, DeviceObj)
     External (_SB_.PCI0.RP17.PXSX, DeviceObj)
 
+    External (_GPE.XTFY, MethodObj) // Notify TB-controller on hotplug
+    External (TWIN, FieldUnitObj)   // TB Windows native mode
+    External (NOHP, FieldUnitObj)   // Notify HotPlug
+
+    Scope (\_GPE)
+    {
+        Method (NTFY, 2, Serialized)
+        {
+            // Patch only if in windows native mode and OSX
+            If (OSDW () && (\TWIN != Zero) && (NOHP == One) && Arg0 == 0x11 && Arg1 == One)
+            {
+                Notify (\_SB.PCI0.RP17.UPSB.DSB0.NHI0, Zero) // Bus Check
+            }
+            Else
+            {
+                XTFY (Arg0, Arg1)
+            }
+        }
+    }
+
     If (OSDW ())
     {
         Scope (\_SB.PCI0.RP17)
