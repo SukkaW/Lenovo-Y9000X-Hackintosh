@@ -24,6 +24,7 @@ GH_KEXTS=(
     "acidanthera/BrightnessKeys"
     "acidanthera/NVMeFix"
     "al3xtjames/NoTouchID"
+    "zhen-zen/YogaSMC"
 )
 
 KEXT_ITEMS=(
@@ -47,6 +48,7 @@ KEXT_ITEMS=(
     "BrightnessKeys.kext"
     "Release/Sinetek-rtsx.kext"
     "NVMeFix.kext"
+    "YogaSMC.kext"
 )
 
 RETRY_MAX=5
@@ -128,6 +130,8 @@ function h_or_g() {
   #        "grep -m 1 AirportItlwm-High_Sierra"
   #        "grep -m 1 AirportItlwm-Mojave"
   #      )
+  elif [[ "$1" == "zhen-zen/YogaSMC" ]]; then
+    hgs=( "grep -m 1 YogaSMC-Release.zip" )
   else
     hgs=( "grep -m 1 RELEASE" )
   fi
