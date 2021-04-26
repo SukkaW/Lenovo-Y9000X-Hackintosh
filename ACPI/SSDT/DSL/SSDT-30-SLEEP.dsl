@@ -53,7 +53,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
 
     // Sleep-config from BIOS
     External (S0ID, FieldUnitObj) // BIOS-S0 enabled, "Windows Modern Standby"
-    External (ESPC, FieldUnitObj) // S3 Enabled?
+    // External (ESPC, FieldUnitObj) // S3 Enabled?
 
     // Package to signal to OS S3-capability. We'll add it if missing.
     External (SS3, FieldUnitObj) // S3 Enabled?    
@@ -68,13 +68,12 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
         // Enable S3
         //   0x00 enables S3
         //   0x02 disables S3
-        ESPC = Zero
 
         // Disable S0 for now
         S0ID = Zero
 
         // This adds S3 for OSX, even when sleep=windows in bios.
-        If (ESPC == Zero && !CondRefOf (\_S3))
+        If (!CondRefOf (\_S3))
         {
             // ATTENTION! Use your own value from DSDT always!
             Name (\_S3, Package (0x04)  // _S3_: S3 System State
@@ -118,7 +117,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     External (_SB.PCI0.LPCB.EC0.ACAD._PSR, MethodObj) // 0 Arguments
     // EC Query Method used to Notify Battery & AC in OEM DSDT
     External (_SB.PCI0.LPCB.EC0.Q37, MethodObj)
-    External (_SB.PCI0.XHC.USBM, MethodObj) // 0 Arguments
     External (XPRW, MethodObj) // 2 ARguments
     External (ZPTS, MethodObj) // 1 Arguments
     External (ZWAK, MethodObj) // 1 Arguments
@@ -128,40 +126,20 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     External (_SB.PCI0.HDAS.PMEE, FieldUnitObj)
     External (_SB.PCI0.GLAN.PMEE, FieldUnitObj)
 
-    External (_SB.PCI0.LPCB.EC0.HPLD, FieldUnitObj)
-    External (_SB.PCI0.GFX0.CLID, FieldUnitObj)
-    External (_SB.PCI0.LPCB.EC0.LIDF, FieldUnitObj)
-    External (_SB.PCI0.LPCB.LID0.PLID, IntObj)
-    External (PWRS, FieldUnitObj)
-
     Scope (\)
     {
         // Fix sleep
-        Method (SPTS, 0, NotSerialized)
-        {
-            If (\_SB.PCI0.LPCB.LID0.PLID != \_SB.PCI0.LPCB.EC0.LIDF)
-            {
-                \_SB.PCI0.LPCB.LID0.PLID = \_SB.PCI0.LPCB.EC0.LIDF
-                \_SB.PCI0.GFX0.CLID = \_SB.PCI0.LPCB.LID0.PLID
-            }
-        }
+        // Method (SPTS, 0, NotSerialized)
+        // {
+        // }
 
         // Fix wake
         Method (SWAK, 0, NotSerialized)
         {
-            If (\_SB.PCI0.LPCB.LID0.PLID != \_SB.PCI0.LPCB.EC0.LIDF)
-            {
-                \_SB.PCI0.LPCB.LID0.PLID = \_SB.PCI0.LPCB.EC0.LIDF
-                \_SB.PCI0.GFX0.CLID = \_SB.PCI0.LPCB.LID0.PLID
-            }
-
             // Wake screen on wake
             Notify (\_SB.PCI0.LPCB.LID0, 0x80)
 
-            // Update ac-state
-            \PWRS = \_SB.PCI0.LPCB.EC0.ACAD._PSR ()
-
-            // Call OEM Q37 Method
+            // Call OEM Q37 Method to update ac-state
             \_SB.PCI0.LPCB.EC0.Q37 ()
         }
 
@@ -170,10 +148,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
             Method (_PTS, 1, NotSerialized)  // _PTS: Prepare To Sleep
             {
                 // On sleep
-                If (OSDW () && (Arg0 < 0x05))
-                {
-                    SPTS ()
-                }
+                // If (OSDW () && (Arg0 < 0x05))
+                // {
+                //     SPTS ()
+                // }
 
                 ZPTS (Arg0)
 
@@ -264,10 +242,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
 
         Method (_PS3, 0, Serialized)
         {
-            If (OSDW () && DIEN == One)
-            {
-                \SPTS ()
-            }
+            // If (OSDW () && DIEN == One)
+            // {
+                // \SPTS ()
+            // }
         }
     }
 
