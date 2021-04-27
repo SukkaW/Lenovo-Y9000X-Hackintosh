@@ -27,7 +27,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
                 // Force HPTE to 0 in order to disable HPET Device
                 HPTE = 0
                 // Force DPTF to 0 in order to disable DPTF Framework
-                DPTF = 0
+                // DPTF = 0
                 // Force GPHD to 2 in order to enable GPI0 device
                 GPHD = 2
                 // Force TPDD to One inorder to disable I2C1.TPAD device (while it will enable PS2M device)
