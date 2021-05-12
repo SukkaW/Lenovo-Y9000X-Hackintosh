@@ -1942,9 +1942,9 @@
 			<key>AppleEvent</key>
 			<string>Builtin</string>
 			<key>CustomDelays</key>
-			<string>Auto</string>
+			<false/>
 			<key>KeyInitialDelay</key>
-			<integer>0</integer>
+			<integer>50</integer>
 			<key>KeySubsequentDelay</key>
 			<integer>5</integer>
 			<key>PointerSpeedDiv</key>
@@ -2074,12 +2074,18 @@
 			<false/>
 			<key>DisableSecurityPolicy</key>
 			<false/>
+			<key>EnableVectorAcceleration</key>
+			<true/>
 			<key>ExitBootServicesDelay</key>
 			<integer>0</integer>
+			<key>ForgeUefiSupport</key>
+			<false/>
 			<key>IgnoreInvalidFlexRatio</key>
 			<false/>
 			<key>ReleaseUsbOwnership</key>
 			<true/>
+			<key>ReloadOptionRoms</key>
+			<false/>
 			<key>RequestBootVarRouting</key>
 			<true/>
 			<key>TscSyncTimeout</key>
