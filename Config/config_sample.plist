@@ -1619,6 +1619,8 @@
 			<true/>
 			<key>PowerTimeoutKernelPanic</key>
 			<true/>
+			<key>ProvideCurrentCpuInfo</key>
+			<false/>
 			<key>SetApfsTrimTimeout</key>
 			<integer>-1</integer>
 			<key>ThirdPartyDrives</key>
@@ -1659,7 +1661,7 @@
 			<key>PickerMode</key>
 			<string>External</string>
 			<key>PickerVariant</key>
-			<string>Modern</string>
+			<string>GoldenGate</string>
 			<key>PollAppleHotKeys</key>
 			<true/>
 			<key>ShowPicker</key>
@@ -1696,6 +1698,8 @@
 			<true/>
 			<key>AllowSetDefault</key>
 			<true/>
+			<key>AllowToggleSip</key>
+			<false/>
 			<key>ApECID</key>
 			<integer>0</integer>
 			<key>AuthRestart</key>
@@ -1734,6 +1738,8 @@
 				<true/>
 				<key>Name</key>
 				<string>UEFI Shell</string>
+				<key>Flavour</key>
+				<string>OpenShell:UEFIShell:Shell</string>
 				<key>Path</key>
 				<string>OpenShell.efi</string>
 				<key>RealPath</key>
@@ -1751,11 +1757,13 @@
 				<key>Enabled</key>
 				<true/>
 				<key>Name</key>
-				<string>memcheck</string>
+				<string>memtest86</string>
+				<key>Flavour</key>
+				<string>MemTest</string>
 				<key>Path</key>
-				<string>memcheck/memcheck.efi</string>
+				<string>memtest86/BOOTX64.efi</string>
 				<key>RealPath</key>
-				<false/>
+				<true/>
 				<key>TextMode</key>
 				<false/>
 			</dict>
@@ -1770,6 +1778,8 @@
 				<true/>
 				<key>Name</key>
 				<string>Shutdown</string>
+				<key>Flavour</key>
+				<string>Auto</string>
 				<key>Path</key>
 				<string>ResetSystem.efi</string>
 				<key>RealPath</key>
@@ -1788,6 +1798,8 @@
 				<true/>
 				<key>Name</key>
 				<string>Enter BIOS</string>
+				<key>Flavour</key>
+				<string>Auto</string>
 				<key>Path</key>
 				<string>ResetSystem.efi</string>
 				<key>RealPath</key>
@@ -1806,6 +1818,8 @@
 				<true/>
 				<key>Name</key>
 				<string>VerifyMsrE2</string>
+				<key>Flavour</key>
+				<string>Auto</string>
 				<key>Path</key>
 				<string>VerifyMsrE2.efi</string>
 				<key>RealPath</key>
@@ -1824,6 +1838,8 @@
 				<true/>
 				<key>Name</key>
 				<string>RtcRw</string>
+				<key>Flavour</key>
+				<string>Auto</string>
 				<key>Path</key>
 				<string>RtcRw.efi</string>
 				<key>RealPath</key>
@@ -1861,6 +1877,8 @@
 				<data>ZW4tVVM6MA==</data>
 				<key>run-efi-updater</key>
 				<string>No</string>
+				<key>ForceDisplayRotationInEFI</key>
+				<integer>0</integer>
 			</dict>
 		</dict>
 		<key>Delete</key>
@@ -1877,6 +1895,7 @@
 			<key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key>
 			<array>
 				<string>boot-args</string>
+				<string>ForceDisplayRotationInEFI</string>
 			</array>
 		</dict>
 		<key>LegacyEnable</key>
@@ -1896,7 +1915,7 @@
 		<false/>
 		<key>Generic</key>
 		<dict>
-			<key>AdviseWindows</key>
+			<key>AdviseFeatures</key>
 			<false/>
 			<key>MaxBIOSVersion</key>
 			<false/>
@@ -1942,7 +1961,7 @@
 			<key>AppleEvent</key>
 			<string>Builtin</string>
 			<key>CustomDelays</key>
-			<string>Auto</string>
+			<false/>
 			<key>KeyInitialDelay</key>
 			<integer>0</integer>
 			<key>KeySubsequentDelay</key>
@@ -2013,7 +2032,7 @@
 			<key>ForceResolution</key>
 			<false/>
 			<key>GopPassThrough</key>
-			<false/>
+			<string>Disabled</string>
 			<key>IgnoreTextInGraphics</key>
 			<false/>
 			<key>ProvideConsoleGop</key>
@@ -2038,6 +2057,8 @@
 			<key>AppleBootPolicy</key>
 			<false/>
 			<key>AppleDebugLog</key>
+			<false/>
+			<key>AppleEg2Info</key>
 			<false/>
 			<key>AppleFramebufferInfo</key>
 			<false/>
