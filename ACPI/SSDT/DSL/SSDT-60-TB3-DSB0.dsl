@@ -31,6 +31,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
     External (_SB.PCI0.RP17.POFF, MethodObj)   // 0 Arguments
     External (_SB.PCI0.RP17.PON, MethodObj)    // 0 Arguments
     External (_SB.PCI0.RP17.PSTA, MethodObj)   // 0 Arguments
+
     Scope (\_GPE)
     {
         Method (NTFY, 2, Serialized)
@@ -377,7 +378,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              * #define REG_FW_STS_ICM_EN_INVERT     BIT(1)
              * #define REG_FW_STS_ICM_EN            BIT(0)
              *
-             * Source: https://github.com/torvalds/linux/blob/master/drivers/thunderbolt/nhi.h
+             * Source: https://github.com/torvalds/linux/blob/master/drivers/thunderbolt/nhi_regs.h
              */
             Method (ICMD, 0, NotSerialized)
             {
@@ -1035,7 +1036,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 }
             }
 
-                        OperationRegion (A1E0, PCI_Config, Zero, 0x40)
+            OperationRegion (A1E0, PCI_Config, Zero, 0x40)
             Field (A1E0, ByteAcc, NoLock, Preserve)
             {
                 AVND,   32, 
@@ -2157,10 +2158,31 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         {
                             Local0 = Package ()
                                 {
+                                    "AAPL,slot-name", 
+                                    Buffer (0x0C)
+                                    {
+                                        "Thunderbolt"
+                                    },
+                                    "name", 
+                                    Buffer (0x23)
+                                    {
+                                        "Titan Ridge Thunderbolt Controller"
+                                    }, 
+                                    "model",
+                                    Buffer (0x2C)
+                                    {
+                                        "Intel JHL7540 Titan Ridge Thunderbolt 3 NHI"
+                                    }, 
+
+                                    "device_type", 
+                                    Buffer (0x17)
+                                    {
+                                        "Thunderbolt-Controller"
+                                    },
                                     "ThunderboltDROM",
                                     Buffer ()
                                     {
-                                        /* 0000 */  0xC0, 0x00, 0x9D, 0xB1, 0x49, 0x6E, 0x97, 0x18,  // ....In..
+                                        /* 0000 */  0x62, 0x00, 0x01, 0x09, 0x00, 0x00, 0x00, 0x00,  // b.......
                                         /* 0008 */  0x00, 0xC7, 0xC0, 0x3D, 0x42, 0x01, 0x59, 0x00,  // ...=B.Y.
                                         /* 0010 */  0x27, 0x01, 0x11, 0x20, 0x01, 0x01, 0x08, 0x81,  // '.. ....
                                         /* 0018 */  0x80, 0x02, 0x80, 0x00, 0x00, 0x00, 0x08, 0x82,  // ........

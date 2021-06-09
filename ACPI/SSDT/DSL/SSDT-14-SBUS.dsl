@@ -20,7 +20,7 @@ DefinitionBlock ("", "SSDT", 2, "OCLT", "SBUS", 0)
                     {
                         Return (Buffer (One)
                         {
-                             0x03
+                             0x57
                         })
                     }
 

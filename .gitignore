@@ -4,3 +4,4 @@ Kexts/Download
 OpenCore/EFI
 Output
 Config/config.plist
+tmp*
