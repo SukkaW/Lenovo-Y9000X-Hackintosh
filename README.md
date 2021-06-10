@@ -113,7 +113,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 
 #### SSD
 
-Samusung PM981 is not supported AT ALL. Make sure to switch at least one SSD and diable another PM981 (if exists) with SSDT.
+Samusung PM981 is not supported AT ALL. Make sure to switch at least one SSD and disable another PM981 (if exists) with SSDT.
 
 三星 PM981 **完全** 无法使用，务必更换至少一块 SSD 硬盘，并通过 SSDT 屏蔽另外一块 PM981（如果存在的话）。
 
@@ -148,7 +148,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "DNVM", 0x00000000)
 
 #### Wireless Card / 无线网卡
 
-Although OEM Intel AX200 is now supported by [itlwm](https://github.com/OpenIntelWireless/itlwm), but it is still recommended to use Broadcom Wireless card for BETTER (I mean, 100x FASTER!) performance.
+Although OEM Intel AX200 is now supported by [itlwm](https://github.com/OpenIntelWireless/itlwm), it is still recommended to use Broadcom Wireless card for BETTER (I mean, 100x FASTER!) performance.
 
 虽然原装的 Intel AX200 已经可被 [itlwm](https://github.com/OpenIntelWireless/itlwm) 驱动，但是仍建议使用博通无线网卡以获得 **更好** 的性能（更好，指速度快 **100 倍**）
 
