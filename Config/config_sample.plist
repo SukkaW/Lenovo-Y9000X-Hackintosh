@@ -561,6 +561,8 @@
 			<true/>
 			<key>ResetLogoStatus</key>
 			<true/>
+			<key>SyncTableIds</key>
+			<false/>
 		</dict>
 	</dict>
 	<key>Booter</key>
@@ -980,6 +982,24 @@
 				<key>Arch</key>
 				<string>x86_64</string>
 				<key>BundlePath</key>
+				<string>BlueToolFixup.kext</string>
+				<key>Comment</key>
+				<string></string>
+				<key>Enabled</key>
+				<true/>
+				<key>ExecutablePath</key>
+				<string>Contents/MacOS/BlueToolFixup</string>
+				<key>MaxKernel</key>
+				<string></string>
+				<key>MinKernel</key>
+				<string></string>
+				<key>PlistPath</key>
+				<string>Contents/Info.plist</string>
+			</dict>
+			<dict>
+				<key>Arch</key>
+				<string>x86_64</string>
+				<key>BundlePath</key>
 				<string>BrcmBluetoothInjector.kext</string>
 				<key>Comment</key>
 				<string></string>
@@ -988,7 +1008,7 @@
 				<key>ExecutablePath</key>
 				<string></string>
 				<key>MaxKernel</key>
-				<string></string>
+				<string>20.99.99</string>
 				<key>MinKernel</key>
 				<string></string>
 				<key>PlistPath</key>
@@ -1630,6 +1650,8 @@
 		</dict>
 		<key>Scheme</key>
 		<dict>
+			<key>CustomKernel</key>
+			<false/>
 			<key>FuzzyMatch</key>
 			<true/>
 			<key>KernelArch</key>
@@ -1736,10 +1758,10 @@
 				<string>Not signed for security reasons</string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>UEFI Shell</string>
 				<key>Flavour</key>
 				<string>OpenShell:UEFIShell:Shell</string>
+				<key>Name</key>
+				<string>UEFI Shell</string>
 				<key>Path</key>
 				<string>OpenShell.efi</string>
 				<key>RealPath</key>
@@ -1756,10 +1778,10 @@
 				<string>Memory testing utility</string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>memtest86</string>
 				<key>Flavour</key>
 				<string>MemTest</string>
+				<key>Name</key>
+				<string>memtest86</string>
 				<key>Path</key>
 				<string>memtest86/BOOTX64.efi</string>
 				<key>RealPath</key>
@@ -1776,10 +1798,10 @@
 				<string>Perform shutdown</string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>Shutdown</string>
 				<key>Flavour</key>
 				<string>Auto</string>
+				<key>Name</key>
+				<string>Shutdown</string>
 				<key>Path</key>
 				<string>ResetSystem.efi</string>
 				<key>RealPath</key>
@@ -1796,10 +1818,10 @@
 				<string>Enter BIOS</string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>Enter BIOS</string>
 				<key>Flavour</key>
 				<string>Auto</string>
+				<key>Name</key>
+				<string>Enter BIOS</string>
 				<key>Path</key>
 				<string>ResetSystem.efi</string>
 				<key>RealPath</key>
@@ -1816,10 +1838,10 @@
 				<string></string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>VerifyMsrE2</string>
 				<key>Flavour</key>
 				<string>Auto</string>
+				<key>Name</key>
+				<string>VerifyMsrE2</string>
 				<key>Path</key>
 				<string>VerifyMsrE2.efi</string>
 				<key>RealPath</key>
@@ -1836,10 +1858,10 @@
 				<string></string>
 				<key>Enabled</key>
 				<true/>
-				<key>Name</key>
-				<string>RtcRw</string>
 				<key>Flavour</key>
 				<string>Auto</string>
+				<key>Name</key>
+				<string>RtcRw</string>
 				<key>Path</key>
 				<string>RtcRw.efi</string>
 				<key>RealPath</key>

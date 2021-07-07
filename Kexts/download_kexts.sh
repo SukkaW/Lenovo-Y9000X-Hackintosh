@@ -45,6 +45,7 @@ KEXT_ITEMS=(
     "BrcmBluetoothInjector.kext"
     "BrcmFirmwareData.kext"
     "BrcmPatchRAM3.kext"
+    "BlueToolFixup.kext"
     "BrightnessKeys.kext"
     "Release/Sinetek-rtsx.kext"
     "NVMeFix.kext"
