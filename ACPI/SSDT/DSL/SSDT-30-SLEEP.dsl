@@ -114,7 +114,6 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     External (_SB.PCI0.LPCB.EC0, DeviceObj)
     External (_SB.PCI0.LPCB.LID0, DeviceObj)
 
-    External (_SB.PCI0.LPCB.EC0.ACAD._PSR, MethodObj) // 0 Arguments
     // EC Query Method used to Notify Battery & AC in OEM DSDT
     External (_SB.PCI0.LPCB.EC0.Q37, MethodObj)
     External (XPRW, MethodObj) // 2 ARguments
@@ -140,7 +139,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
             Notify (\_SB.PCI0.LPCB.LID0, 0x80)
 
             // Call OEM Q37 Method to update ac-state
-            \_SB.PCI0.LPCB.EC0.Q37 ()
+            If (CondRefOf (\_SB.PCI0.LPCB.EC0.Q37))
+            {
+                \_SB.PCI0.LPCB.EC0.Q37()
+            }
         }
 
         If (CondRefOf (\ZPTS))
@@ -231,7 +233,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
         {
             If (OSDW () && DIEN == One && INIB == Zero)
             {
-                \SWAK ()
+                SWAK ()
             }
 
             If (INIB == One)
