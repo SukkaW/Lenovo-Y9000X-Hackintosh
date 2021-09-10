@@ -11,9 +11,13 @@
 
 DefinitionBlock("", "SSDT", 2, "SUKA", "PNLF", 0)
 {
+    // From SSDT-00-DAWRIN
+    External (OSDW, MethodObj)
+
     External(_SB_.PCI0.GFX0, DeviceObj)
 
-    If (_OSI ("Darwin")) {
+    If (OSDW ())
+    {
         Scope (\_SB.PCI0.GFX0)
         {
             OperationRegion (RMP3, PCI_Config, Zero, 0x14)
@@ -97,7 +101,10 @@ DefinitionBlock("", "SSDT", 2, "SUKA", "PNLF", 0)
 
                 Method(_INI)
                 {
+                    // IntelBacklight.kext takes care of this at load time...
+                    // However we want to use AppleBacklight.kext...
                     Local4 = 1
+                    If (!(1 & Local4)) { Return }
 
                     // Adjustment required when using WhateverGreen.kext
                     Local0 = ^GDID
@@ -107,7 +114,7 @@ DefinitionBlock("", "SSDT", 2, "SUKA", "PNLF", 0)
 
                     // Now fixup the backlight PWM depending on the framebuffer type
                     // At this point:
-                    //   Local4 used to be RMCF.BLKT value, it is now always 1
+                    //   Local4 is always 1
                     //   Local0 is device-id for IGPU
                     //   Local2 is LMAX, if specified (Ones means based on device-id)
                     //   Local3 is framebuffer type
@@ -162,29 +169,6 @@ DefinitionBlock("", "SSDT", 2, "SUKA", "PNLF", 0)
                     }, MEQ, Local0, MTR, 0, 0))
                     {
                         if (Ones == Local2) { Local2 = COFFEELAKE_PWMMAX }
-                        INI1(Local4)
-                        // change/scale only if different than current...
-                        Local1 = ^LEVX
-                        If (!Local1) { Local1 = Local2 }
-                        If (!(8 & Local4) && Local2 != Local1)
-                        {
-                            // set new backlight PWMMax but retain current backlight level by scaling
-                            Local0 = (^LEVD * Local2) / Local1
-                            //REVIEW: wait for vblank before setting new PWM config
-                            //For (Local7 = ^P0BL, ^P0BL == Local7, ) { }
-                            If (Local2 > Local1)
-                            {
-                                // PWMMax is getting larger... store new PWMMax first
-                                ^LEVX = Local2
-                                ^LEVD = Local0
-                            }
-                            Else
-                            {
-                                // otherwise, store new brightness level, followed by new PWMMax
-                                ^LEVD = Local0
-                                ^LEVX = Local2
-                            }
-                        }
                     }
                     // otherwise must be Haswell/Broadwell/Skylake/KabyLake/KabyLake-R (FBTYPE_HSWPLUS)
                     Else
