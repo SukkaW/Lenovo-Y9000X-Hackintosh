@@ -25,6 +25,7 @@ GH_KEXTS=(
     "acidanthera/NVMeFix"
     "al3xtjames/NoTouchID"
     "zhen-zen/YogaSMC"
+    "acidanthera/CPUFriend"
 )
 
 KEXT_ITEMS=(
@@ -50,6 +51,7 @@ KEXT_ITEMS=(
     "Release/Sinetek-rtsx.kext"
     "NVMeFix.kext"
     "YogaSMC.kext"
+    "CPUFriend.kext"
 )
 
 RETRY_MAX=5

@@ -55,6 +55,8 @@
 					</dict>
 					<key>HS02</key>
 					<dict>
+						<key>Comment</key>
+						<string>USB 2.0 (Back Right)</string>
 						<key>UsbConnector</key>
 						<integer>0</integer>
 						<key>port</key>
