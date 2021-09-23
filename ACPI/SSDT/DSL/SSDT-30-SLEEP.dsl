@@ -65,9 +65,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     // This make OSX independent of the BIOS-sleep-setting and force-enable S3
     If (OSDW ())
     {
-        // Enable S3
-        //   0x00 enables S3
-        //   0x02 disables S3
+        Debug = "SSDT_SLEEP: Enabling comprehensive S3-patching..."
 
         // Disable S0 for now
         S0ID = Zero
@@ -96,6 +94,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
     // Save sleep-state in XLTP on transition. Like a genuine Mac.
     Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
     {
+        Debug = Concatenate ("SSDT_SLEEP: _TTS() called with Arg0 = ", Arg0)
+
         XLTP = Arg0
     }
 
@@ -141,6 +141,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
             // Call OEM Q37 Method to update ac-state
             If (CondRefOf (\_SB.PCI0.LPCB.EC0.Q37))
             {
+                 Debug = "SSDT_SLEEP: SWAK() - Call Q37 to sync AC State"
                 \_SB.PCI0.LPCB.EC0.Q37()
             }
         }
@@ -149,6 +150,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
         {
             Method (_PTS, 1, NotSerialized)  // _PTS: Prepare To Sleep
             {
+                Debug = Concatenate ("SSDT_SLEEP: _PTS called - Arg0 = ", Arg0)
+
                 // On sleep
                 // If (OSDW () && (Arg0 < 0x05))
                 // {
@@ -188,6 +191,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
             // Patch _WAK to fire missing LID-Open event and update AC-state
             Method (_WAK, 1, Serialized)
             {
+                Debug = Concatenate ("SSDT_SLEEP: _WAK - called Arg0: ", Arg0)
+
                 // On Wake
                 If (OSDW () && (Arg0 < 0x05))
                 {
@@ -256,6 +261,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
         // Enable ACPI-S0-DeepIdle
         Method (LPS0, 0, NotSerialized)
         {
+            Debug = "SSDT_SLEEP: Enable S0-Sleep / DeepSleep"
+
             // If S0ID is enabled, enable deep-sleep in OSX. Can be set above.
             // Return (S0ID)
             Return (DIEN)

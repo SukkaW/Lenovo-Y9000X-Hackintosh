@@ -66,6 +66,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
             // kUSBTypeCCableDetectACPIMethodSupported
             Method (RTPC, 1, Serialized)
             {
+                Debug = Concatenate ("XHC:RTPC called with args: ", Arg0)
+
                 Return (Zero)
             }
 
@@ -84,6 +86,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "XHC1", 0x00001000)
                 {
                     Local0 = (\_SB.PCI0.RP17.PXSX.DSB2.XHC2.MODU ())
                 }
+
+                Debug = Concatenate ("SSDT_XHC1:MODU - Result: ", Local0)
 
                 Return (Local0)
             }

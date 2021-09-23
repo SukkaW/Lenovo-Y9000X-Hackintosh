@@ -25,17 +25,18 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
     External (_SB.PCI0.RP17.PXSX.DSB2.RUSB, FieldUnitObj)
     External (_SB.PCI0.RP17.PXSX.DSB2.PCIA, FieldUnitObj)
 
-    External (TBSE, IntObj)
+    External (RPS0, IntObj)
     External (TBTS, IntObj)
     External (USME, IntObj)
 
-    If (((TBTS == One) && (TBSE == 0x09)))
+    If (((TBTS == One) && (RPS0 == 0x11)))
     {
         Scope (\_SB.PCI0.RP17.PXSX.DSB2)
         {
             Device (XHC2)
             {
                 Name (_ADR, Zero)  // _ADR: Address
+
                 OperationRegion (A1E0, PCI_Config, Zero, 0x40)
                 Field (A1E0, ByteAcc, NoLock, Preserve)
                 {
@@ -52,6 +53,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
 
                 Method (_PS0, 0, Serialized)  // _PS0: Power State 0
                 {
+                    Debug = "TB:DSB2:XHC2:_PS0"
+
                     Sleep (0xC8)
 
                     If (OSDW ())
@@ -67,6 +70,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
 
                 Method (_PS3, 0, Serialized)  // _PS3: Power State 3
                 {
+                    Debug = "TB:DSB2:XHC2:_PS3"
+
                     Sleep (0xC8)
 
                     If (OSDW ())
@@ -142,37 +147,39 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
                 */
                 Method (PCED, 0, Serialized)
                 {
-                    // Request USB-GPIO to be enabled & force TBT-GPIO
+                    Debug = "TB:DSB2:XHC2:PCED"
+                    Debug = "TB:DSB2:XHC2:PCED - Request USB-GPIO to be enabled & force TBT-GPIO"
                     \_SB.PCI0.RP17.GXCI = One
 
                     // this powers up both TBT and USB when needed
                     If (\_SB.PCI0.RP17.UGIO () != Zero)
                     {
-                        // GPIOs changed, restored = true
+                        Debug = "TB:DSB2:XHC2:PCED - GPIOs changed, restored = true"
                         ^^PRSR = One
                     }
 
                     Local5 = (Timer + 0x00989680)
 
+                    Debug = Concatenate ("TB:DSB2:XHC2:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR: ", ^^PRSR)
+
                     If (^^PRSR != Zero)
                     {
-                        // Wait for power up
-                        // Wait for downstream bridge to appear
+                        Debug = "TB:DSB2:XHC2:PCED - Wait for power up and downstream bridge to appear"
                         Local5 = (Timer + 0x00989680)
                         While (Timer <= Local5)
                         {
-                            // Wait for link training...
+                            Debug = "TB:DSB2:XHC2:PCED - Wait for link training..."
                             If (^^LACR == Zero)
                             {
                                 If (^^LTRN != One)
                                 {
-                                    // Link training cleared
+                                    Debug = "TB:DSB2:XHC2:PCED - Link training cleared"
                                     Break
                                 }
                             }
                             ElseIf ((^^LTRN != One) && (^^LACT == One))
                             {
-                                // Link training cleared and link is active
+                                Debug = "TB:DSB2:XHC2:PCED - Link training cleared and link is active"
                                 Break
                             }
 
@@ -185,10 +192,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
                     ^^PRSR = Zero
                     While (Timer <= Local5)
                     {
-                        // Wait for config space...
+                        Debug = "TB:DSB2:XHC2:PCED - Wait for config space..."
                         If (AVND != 0xFFFFFFFF)
                         {
-                            // DSB2 Up - Read VID/DID
+                            Debug = "TB:DSB2:XHC2:PCED - DSB2 Up - Read VID/DID"
                             ^^PCIA = One
                             Break
                         }
@@ -205,7 +212,12 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
                  */
                 Method (RTPC, 1, Serialized)
                 {
+                    Debug = Concatenate ("TB:DSB2:XHC2:RTPC called with Arg0: ", Arg0)
+
+                    Debug = Concatenate ("TB:DSB2:XHC2:RTPC setting RUSB to: ", Arg0)
+
                     ^^RUSB = Arg0
+
 
                     Return (Zero)
                 }
@@ -223,11 +235,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
                 {
                     If (CondRefOf (\_SB.PCI0.RP17.PXSX.MDUV))
                     {
+                        Debug = Concatenate ("TB:DSB2:XHC2:MODU - MDUV - return: ", \_SB.PCI0.RP17.PXSX.MDUV)
+
                         Return (\_SB.PCI0.RP17.PXSX.MDUV)
                     }
                     Else
                     {
                         // WORKING W/O PM
+                        Debug = Concatenate ("TB:DSB2:XHC2:MODU - return: ", ^^RUSB)
+
                         Return (^^RUSB)
                     }
                 }

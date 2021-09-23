@@ -44,7 +44,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
             // Thunderbolt-setup
             If (OSDW () && CondRefOf (\_SB.PCI0.RP17.INIT))
             {
+                Debug = "SSDT_INIT: calling _SB.PCI0.RP17.INIT()"
                 \_SB.PCI0.RP17.INIT ()
+            } Else {
+                Debug = "SSDT_INIT: _SB.PCI0.RP17.INIT Not Found!"
             }
         }
     }

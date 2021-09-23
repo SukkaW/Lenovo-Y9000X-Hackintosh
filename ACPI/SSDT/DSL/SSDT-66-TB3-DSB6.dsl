@@ -5,10 +5,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB36", 0x00001000)
     External (OSDW, MethodObj) // 0 Arguments
 
     External (_SB.PCI0.RP17.PXSX, DeviceObj)
-    External (TBSE, IntObj)
+    External (RPS0, IntObj)
     External (TBTS, IntObj)
 
-    If (((TBTS == One) && (TBSE == 0x09)))
+    If (((TBTS == One) && (RPS0 == 0x11)))
     {
         Scope (\_SB.PCI0.RP17.PXSX)
         {

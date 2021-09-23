@@ -2,6 +2,14 @@
  * Detect Darwin (OSX) to enable other patches
  * Credits @osy86 & @Rehabman
  */
+//
+// To enable ACPI debug logging in AppleACPIPlatform:
+// Add boot args: acpi_layer=0x8 acpi_level=0x2 debug=0x100
+// (https://pikeralpha.wordpress.com/2013/12/23/enabling-acpi-debugging/)
+//
+// To retrieve the ACPI debug output in macOS:
+// log show --last boot --predicate 'process == "kernel" AND senderImagePath CONTAINS "AppleACPIPlatform"' --style compact | awk '/ACPI Debug/{getline; getline; print}'
+//
 DefinitionBlock ("", "SSDT", 2, "SUKA", "BASE", 0)
 {
     Method (DTGP, 5, NotSerialized)

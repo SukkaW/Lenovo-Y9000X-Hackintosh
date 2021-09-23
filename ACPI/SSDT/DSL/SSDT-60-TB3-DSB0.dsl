@@ -1,3 +1,29 @@
+/**
+ * Thunderbolt For Titan Ridge on Lenovo LEGION Y9000X 2020
+ * Originally made by bender for Thunderbolt For Alpine Ridge on X1C6
+ * 
+ * Large parts (link training and enumeration) 
+ * taken from decompiled Mac AML.
+ *
+ * Implements mostly of the ACPI-part for handling Thunderbolt 3. Does power management for TB.
+ *
+ * It enables not only the PCIe-to-PCIe-bridge mode of the TB controller but the native drivers incl. power-management.
+ * The controller is visible in SysInfo and the ICM is disabled on boot to let OSX' drivers take over the job.
+ *
+ * WIP but should be complete now. And full of bugs. Its largely untested. Intended to give a mostly complete and as native as possible experience.
+ *
+ * Copyright (c) 2019 osy86
+ * Copyleft (c) 2020 benben
+ * Copyleft (c) 2021 sukkaw (https://skk.moe)
+ *
+ * Debugging & Bug-reports:
+ * sudo dmesg|egrep -i "PMRD|ACPI Debug|Thunderbolt|usb"|less
+ *
+ * Platform-reference: https://github.com/tianocore/edk2-platforms/tree/master/Platform/Intel/KabylakeOpenBoardPkg/Features/Tbt/AcpiTables
+ * osy86-implementation: https://github.com/osy86/HaC-Mini/blob/master/ACPI/SSDT-TbtOnPCH.asl
+ * benbender-implementation: https://github.com/tylernguyen/x1c6-hackintosh/blob/main/patches/SSDT-TB-DSB0.dsl
+ */
+
 DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 {
     // Common utils from SSDT-DARWIN
@@ -8,25 +34,40 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
     External (_SB.PCI0.RP17.XPS0, MethodObj)
     External (_SB.PCI0.RP17.XPS3, MethodObj)
     External (_SB.PCI0.RP17.PXSX, DeviceObj)         // original PCIe-bridge
-
     External (_SB.PCI0.XHC, DeviceObj)               // USB2/3 device
     External (_SB.PCI0.GPCB, MethodObj)              // 0 Arguments
-
     External (_GPE.XTFY, MethodObj)                  // Notify TB-controller on hotplug
     External (MMRP, MethodObj)                       // Memory mapped root port, 2 Arguments
     External (MMTB, MethodObj)                       // Memory mapped TB port, 2 Arguments
 
-    External (_SB.PCI0.RP17.VDID, FieldUnitObj)
+    // External (_SB.PCI0.RP17.VDID, FieldUnitObj)
 
     External (_SB.PCI0.RP17.PXSX.DSB2.XHC2, DeviceObj)
     External (_SB.PCI0.RP17.PXSX.DSB2.RUSB, IntObj)
 
+    External (TBSF, FieldUnitObj)
+    External (SOHP, FieldUnitObj)                    // SMI on Hot Plug
     External (TWIN, FieldUnitObj)                    // TB Windows native mode
+    External (GP5F, FieldUnitObj)
     External (NOHP, FieldUnitObj)                    // Notify HotPlug
-    External (TBTS, IntObj)                          // TB enabled
     External (TBSE, FieldUnitObj)                    // TB root port number
-
-    External (XLTP, IntObj)                          // DeepSleep ACPI-S0 (SSDT-30-SLEEP)
+    External (RPS0, FieldUnitObj)                    // Fuck Lenovo for non-standard thunderbolt port determination
+    External (RPT0, FieldUnitObj)
+    External (WKFN, FieldUnitObj)
+    External (TBTS, IntObj)                          // TB enabled
+    External (TARS, FieldUnitObj)
+    External (FPEN, FieldUnitObj)
+    External (FPG1, FieldUnitObj)
+    External (FP1L, FieldUnitObj)
+    External (CPG0, FieldUnitObj)                    // CIO Hotplug GPIO
+    External (CPG1, FieldUnitObj)
+    External (TRWA, FieldUnitObj)
+    External (TBOD, FieldUnitObj)
+    External (TSXW, FieldUnitObj)
+    External (RTBT, IntObj)                          // Runtime D3 on TB enabled
+    External (RTBC, FieldUnitObj)
+    External (TBCD, FieldUnitObj)
+    External (USTC, FieldUnitObj)
 
     External (_SB.PCI0.RP17.POFF, MethodObj)   // 0 Arguments
     External (_SB.PCI0.RP17.PON, MethodObj)    // 0 Arguments
@@ -36,71 +77,78 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
     {
         Method (NTFY, 2, Serialized)
         {
+            Debug = "TB:_GPE:NTFY"
             // Patch only if in windows native mode and OSX
             If (OSDW () && (\TWIN != Zero) && (NOHP == 0x01) && Arg0 == 0x11)
             {
+                Debug = "SSDT_TB: _GPE:NTFY() - call AMPE ()"
+
                 \_SB.PCI0.RP17.PXSX.AMPE () // Notify UPSB
             }
             Else
             {
+                Debug = "SSDT_TB: Call OEM NTFY (XTFY) Method"
                 XTFY (Arg0, Arg1)
             }
         }
     }
 
-    If (((TBTS == One) && (TBSE == 0x09))) {
-        Scope (\_SB.PCI0.RP17) {
+
+    If (((TBTS == One) && (RPS0 == 0x11)))
+    {
+        Scope (\_SB.PCI0.RP17)
+        {
             Name (UPN1, 0x01)                                // USBCPortNumber of SSP1/HS03
             Name (UPN2, 0x02)                                // USBCPortNumber of SSP2/HS04
 
-            Name (R020, Zero)
-            Name (R024, Zero)
+            Name (R020, Zero) // RP base/limit from UEFI
+            Name (R024, Zero) // RP prefetch base/limit from UEFI
             Name (R028, Zero)
             Name (R02C, Zero)
 
-            Name (R118, Zero)
-            Name (R119, Zero)
-            Name (R11A, Zero)
-            Name (R11C, Zero)
-            Name (R120, Zero)
-            Name (R124, Zero)
+            Name (R118, Zero) // UPSB Pri Bus = RP Sec Bus (UEFI)
+            Name (R119, Zero) // UPSB Sec Bus = RP Sec Bus + 1
+            Name (R11A, Zero) // UPSB Sub Bus = RP Sub Bus (UEFI)
+            Name (R11C, Zero) // UPSB IO base/limit = RP IO base/limit (UEFI)
+            Name (R120, Zero) // UPSB mem base/limit = RP mem base/limit (UEFI)
+            Name (R124, Zero) // UPSB pre base/limit = RP pre base/limit (UEFI)
             Name (R128, Zero)
             Name (R12C, Zero)
 
-            Name (R218, Zero)
-            Name (R219, Zero)
-            Name (R21A, Zero)
-            Name (R21C, Zero)
-            Name (R220, Zero)
-            Name (R224, Zero)
+            Name (R218, Zero) // DSB0 Pri Bus = UPSB Sec Bus
+            Name (R219, Zero) // DSB0 Sec Bus = UPSB Sec Bus + 1
+            Name (R21A, Zero) // DSB0 Sub Bus = UPSB Sub Bus
+            Name (R21C, Zero) // DSB0 IO base/limit = UPSB IO base/limit
+            Name (R220, Zero) // DSB0 mem base/limit = UPSB mem base/limit
+            Name (R224, Zero) // DSB0 pre base/limit = UPSB pre base/limit
             Name (R228, Zero)
             Name (R22C, Zero)
 
-            Name (R318, Zero)
-            Name (R319, Zero)
-            Name (R31A, Zero)
-            Name (R31C, Zero)
-            Name (R320, Zero)
-            Name (R324, Zero)
+            Name (R318, Zero) // DSB1 Pri Bus = UPSB Sec Bus
+            Name (R319, Zero) // DSB1 Sec Bus = UPSB Sec Bus + 2
+            Name (R31A, Zero) // DSB1 Sub Bus = no children
+            Name (R31C, Zero) // DSB1 disable IO
+            Name (R320, Zero) // DSB1 disable mem
+            Name (R324, Zero) // DSB1 disable prefetch
             Name (R328, Zero)
             Name (R32C, Zero)
 
-            Name (R418, Zero)
-            Name (R419, Zero)
-            Name (R41A, Zero)
-            Name (R41C, Zero)
-            Name (R420, Zero)
-            Name (R424, Zero)
+            Name (R418, Zero) // DSB2 Pri Bus = UPSB Sec Bus
+            Name (R419, Zero) // DSB2 Sec Bus = UPSB Sec Bus + 3
+            Name (R41A, Zero) // DSB2 Sub Bus = no children
+            Name (R41C, Zero) // DSB2 disable IO
+            Name (R420, Zero) // DSB2 disable mem
+            Name (R424, Zero) // DSB2 disable prefetch
             Name (R428, Zero)
             Name (R42C, Zero)
-            Name (RVES, Zero)
+            Name (RVES, Zero) // DSB2 offset 0x564, unknown
 
-            Name (R518, Zero)
-            Name (R519, Zero)
-            Name (R51A, Zero)
-            Name (R51C, Zero)
-            Name (R520, Zero)
-            Name (R524, Zero)
+            Name (R518, Zero) // DSB4 Pri Bus = UPSB Sec Bus
+            Name (R519, Zero) // DSB4 Sec Bus = UPSB Sec Bus + 4
+            Name (R51A, Zero) // DSB4 Sub Bus = no children
+            Name (R51C, Zero) // DSB4 disable IO
+            Name (R520, Zero) // DSB4 disable mem
+            Name (R524, Zero) // DSB4 disable prefetch
             Name (R528, Zero)
             Name (R52C, Zero)
             Name (R618, Zero)
@@ -112,10 +160,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
             Name (R628, Zero)
             Name (R62C, Zero)
 
-            Name (RH10, Zero)
-            Name (RH14, Zero)
+            Name (RH10, Zero) // NHI0 BAR0 = DSB0 mem base
+            Name (RH14, Zero) // NHI0 BAR1 unused
 
             Name (POC0, Zero)
+
 
             /**
              * Get PCI base address
@@ -131,7 +180,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
             }
 
             // Root port configuration base
-            OperationRegion (RPSM, SystemMemory, MMRP (TBSE), 0x54)
+            OperationRegion (RPSM, SystemMemory, MMRP (RPS0, RPT0), 0x54)
             Field (RPSM, DWordAcc, NoLock, Preserve)
             {
                 RPVD,   32, 
@@ -154,7 +203,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
             }
 
             // UPSB (up stream port) configuration base
-            OperationRegion (UPSM, SystemMemory, MMTB (TBSE), 0x0550)
+            OperationRegion (UPSM, SystemMemory, MMTB (RPS0, RPT0), 0x0550)
             Field (UPSM, DWordAcc, NoLock, Preserve)
             {
                 UPVD,   32, // Up Stream VID/DID
@@ -287,13 +336,39 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 ICME,   32
             }
 
-            Method (INIT, 0, NotSerialized) {
+            Method (INIT, 0, NotSerialized)
+            {
                 If (OSDW ())
                 {
+                    Concatenate("TB:INIT: TBSF - Thunderbolt(TM) SMI Function Number: ", TBSF, Debug)
+                    Concatenate("TB:INIT: SOHP - SMI on Hot Plug for TBT devices: ", SOHP, Debug)
+                    Concatenate("TB:INIT: TWIN - TbtWin10Support: ", TWIN, Debug)
+                    Concatenate("TB:INIT: GP5F - Gpio filter to detect USB Hotplug event: ", GP5F, Debug)
+                    Concatenate("TB:INIT: NOHP - Notify on Hot Plug for TBT devices: ", NOHP, Debug)
+                    Concatenate("TB:INIT: TBSE - Thunderbolt(TM) Root port selector: ", TBSE, Debug)
+                    Concatenate("TB:INIT: RPS0 - Lenovo Fucking Root port selector: ", RPS0, Debug)
+                    Concatenate("TB:INIT: RPT0 - Root Port And WTF?: ", RPT0, Debug)
+                    Concatenate("TB:INIT: WKFN - WAK Finished: ", WKFN, Debug)
+                    Concatenate("TB:INIT: TBTS - Thunderbolt support: ", TBTS, Debug)
+                    Concatenate("TB:INIT: TARS - TbtAcpiRemovalSupport: ", TARS, Debug)
+                    Concatenate("TB:INIT: FPEN - TbtFrcPwrEn: ", FPEN, Debug)
+                    Concatenate("TB:INIT: FPG1 - TbtFrcPwrGpioNo: ", FPG1, Debug)
+                    Concatenate("TB:INIT: FP1L - TbtFrcPwrGpioLevel: ", FP1L, Debug)
+                    Concatenate("TB:INIT: CPG1 - TbtCioPlugEventGpioNo: ", CPG1, Debug)
+                    Concatenate("TB:INIT: TRWA - Titan Ridge Osup command: ", TRWA, Debug)
+                    Concatenate("TB:INIT: TBOD - Rtd3TbtOffDelay TBT RTD3 Off Delay: ", TBOD, Debug)
+                    Concatenate("TB:INIT: TSXW - TbtSxWakeSwitchLogicEnable Set True if TBT_WAKE_N will be routed to PCH WakeB at Sx entry point. HW logic is required: ", TSXW, Debug)
+                    Concatenate("TB:INIT: RTBT - Enable Rtd3 support for TBT: ", RTBT, Debug)
+                    Concatenate("TB:INIT: RTBC - Enable TBT RTD3 CLKREQ mask: ", RTBC, Debug)
+                    Concatenate("TB:INIT: TBCD - TBT RTD3 CLKREQ mask delay: ", TBCD, Debug)
+                    Concatenate("TB:INIT: USTC - USBC-if enabled (UBTC) ???: ", USTC, Debug)
+
+                    Debug = "TB:INIT: TB enabled"
+
                     If (\TWIN != Zero)
                     {
-                        // TB native mode enabled
-                        // Save Ridge Config on Boot ICM
+                        Debug = "TB:INIT: TB native mode enabled"
+                        Debug = "TB:INIT - Save Ridge Config on Boot ICM"
                         R020 = R_20 /* \_SB.PCI0.RP17.R_20 */
                         R024 = R_24 /* \_SB.PCI0.RP17.R_24 */
                         R028 = R_28 /* \_SB.PCI0.RP17.R_28 */
@@ -341,6 +416,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         R52C = D52C /* \_SB.PCI0.RP17.D52C */
                         RH10 = NH10 /* \_SB.PCI0.RP17.NH10 */
                         RH14 = NH14 /* \_SB.PCI0.RP17.NH14 */
+                        Debug = "TB:INIT - Store Complete"
 
                         Sleep (One)
 
@@ -355,7 +431,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     }
                     Else
                     {
-                        // TB bios-assist enabled
+                        Debug = "TB:INIT: TB bios-assist enabled"
                     }
                 }
             }
@@ -365,6 +441,14 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (TBST, 0, Serialized)
             {
+                Debug = Concatenate ("TB:TBST - MDUV: ", \_SB.PCI0.RP17.PXSX.MDUV)
+                Debug = Concatenate ("TB:TBST - NHI: ", \_SB.PCI0.RP17.NH00)
+                Debug = Concatenate ("TB:TBST - Root port: ", \_SB.PCI0.RP17.RPVD)
+                Debug = Concatenate ("TB:TBST - Upstream port: ", \_SB.PCI0.RP17.UPVD)
+                Debug = Concatenate ("TB:TBST - DSB0: ", \_SB.PCI0.RP17.DPVD)
+                Debug = Concatenate ("TB:TBST - DSB1: ", \_SB.PCI0.RP17.D3VD)
+                Debug = Concatenate ("TB:TBST - DSB2: ", \_SB.PCI0.RP17.D4VD)
+                Debug = Concatenate ("TB:TBST - DSB4: ", \_SB.PCI0.RP17.D5VD)
             }
 
             /**
@@ -382,18 +466,28 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (ICMD, 0, NotSerialized)
             {
+                Debug = "TB:ICMD - Disable ICM "
+
                 \_SB.PCI0.RP17.POC0 = One // Predefined Name
+
+                Debug = Concatenate ("TB:ICMD - ICME 1: ", \_SB.PCI0.RP17.ICME)
 
                 If (\_SB.PCI0.RP17.ICME != 0x800001A3) // FieldUnitObj
                 {
                     If (\_SB.PCI0.RP17.CNHI ())
                     {
+                        Debug = Concatenate ("TB:ICMD - ICME 2: ", \_SB.PCI0.RP17.ICME)
+
                         If (\_SB.PCI0.RP17.ICME != 0xFFFFFFFF)
                         {
                             \_SB.PCI0.RP17.WTLT ()
 
+                            Debug = Concatenate ("TB:ICMD - ICME 3: ", \_SB.PCI0.RP17.ICME)
+
                             If (Local0 = (\_SB.PCI0.RP17.ICME & 0x80000000)) // NVM started means we need reset
                             {
+                                Debug = "TB:ICMD - NVM already started, resetting"
+
                                 \_SB.PCI0.RP17.ICME = 0x102 // REG_FW_STS_ICM_EN_INVERT
 
                                 Local0 = 1000
@@ -407,6 +501,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                                     Sleep (One)
                                 }
+
+                                Debug = Concatenate ("TB:ICMD - ICME 4: ", \_SB.PCI0.RP17.ICME)
 
                                 Sleep (1000)
                             }
@@ -424,7 +520,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (ICMS, 0, NotSerialized)
             {
+                Debug = "TB:ICMS - Enable ICM "
+
                 \_SB.PCI0.RP17.POC0 = One
+
+                Debug = Concatenate ("TB:ICMS - ICME 1: ", \_SB.PCI0.RP17.ICME)
 
                 If (\_SB.PCI0.RP17.ICME != 0x800001A6)
                 {
@@ -437,6 +537,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             If (!Local0 = (\_SB.PCI0.RP17.ICME & 0x80000000))
                             {
                                 \_SB.PCI0.RP17.ICME |= 0x06 // invert EN | enable CPU
+
+                                Debug = Concatenate ("TB:ICMS - ICME 2: ", \_SB.PCI0.RP17.ICME)
 
                                 Local0 = 1000
 
@@ -453,6 +555,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                                 Sleep (0x03E8)
                             }
+
+                            Debug = Concatenate ("TB:ICMS - ICME 3: ", \_SB.PCI0.RP17.ICME)
                         }
                     }
                 }
@@ -464,8 +568,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
             // Return 0 when failed, 1 when success
             Method (CNHI, 0, Serialized)
             {
+                Debug = "TB:CNHI"
+
                 Local0 = 10
 
+                Debug = "TB:CNHI - Configure root port"
                 While (Local0)
                 {
                     R_20 = R020 // Memory Base/Limit
@@ -485,13 +592,18 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 If (R020 != R_20) // configure root port failed
                 {
+                    Debug = "TB:CNHI - Error: configure root port failed"
+
                     Return (Zero)
                 }
 
                 Local0 = 10
 
+                Debug = "TB:CNHI - Configure UPSB"
+
                 While (Local0)
                 {
+
                     UP18 = R118 // UPSB Pri Bus
                     UP19 = R119 // UPSB Sec Bus
                     UP1A = R11A // UPSB Sub Bus
@@ -513,17 +625,23 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 If (R119 != UP19) // configure UPSB failed
                 {
+                    Debug = "TB:CNHI - Error: configure UPSB failed"
+
                     Return (Zero)
                 }
 
+                Debug = "TB:CNHI - Wait for link training"
                 If (WTLT () != One) // Wait for link training failed
                 {
+                    Debug = "TB:CNHI - Error: Wait for link training failed"
+
                     Return (Zero)
                 }
 
                 Local0 = 10
 
                 // Configure DSB0
+                Debug = "TB:CNHI - Configure DSB"
                 While (Local0)
                 {
                     // Configure NHI Dp 0
@@ -536,6 +654,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     DP28 = R228 /* \_SB.PCI0.RP17.R228 */
                     DP2C = R22C /* \_SB.PCI0.RP17.R22C */
                     DP04 = 0x07 // Command
+                    Debug = "TB:CNHI - Configure NHI Dp 0 done"
 
                     // Configure NHI Dp 3
                     D318 = R318 // Pri Bus
@@ -547,6 +666,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     D328 = R328 /* \_SB.PCI0.RP17.R328 */
                     D32C = R32C /* \_SB.PCI0.RP17.R32C */
                     D304 = 0x07 // Command
+                    Debug = "TB:CNHI - Configure NHI Dp 3 done"
 
                     // Configure NHI Dp 4
                     D418 = R418 // Pri Bus
@@ -559,6 +679,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     D42C = R42C /* \_SB.PCI0.RP17.R42C */
                     DVES = RVES // DSB2 0x564
                     D404 = 0x07 // Command
+                    Debug = "TB:CNHI - Configure NHI Dp 4 done"
 
                     // Configure NHI Dp 5
                     D518 = R518 // Pri Bus
@@ -570,6 +691,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     D528 = R528 /* \_SB.PCI0.RP17.R528 */
                     D52C = R52C /* \_SB.PCI0.RP17.R52C */
                     D504 = 0x07 // Command
+                    Debug = "TB:CNHI - Configure NHI Dp 5 done"
 
                     If (R219 == DP19)
                     {
@@ -582,15 +704,21 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 If (R219 != DP19) // configure DSB failed
                 {
+                    Debug = "TB:CNHI - Error: configure DSB failed"
+
                     Return (Zero)
                 }
 
-                If (WTDL () != One) // Configure NHI DPs failed
+                If (WTDL () != One)
                 {
+                    Debug = "TB:CNHI - Error: Configure NHI DPs failed"
+
                     Return (Zero)
                 }
 
                 // Configure NHI
+                Debug = "TB:CNHI - Configure NHI"
+
                 Local0 = 100
 
                 While (Local0)
@@ -610,8 +738,12 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 If (RH10 != NH10) // Configure NHI failed
                 {
+                    Debug = "TB:CNHI - Error: Configure NHI failed"
+
                     Return (Zero)
                 }
+
+                Debug = "TB:CNHI - Configure NHI0 done"
 
                 // Configure NHI0 done
                 Return (One)
@@ -622,6 +754,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (UPCK, 0, Serialized)
             {
+                Debug = Concatenate ("TB:UPCK - Up Stream VID/DID: ", UPVD)
+
                 // Accepts every intel device
                 If ((UPVD & 0xFFFF) == 0x8086)
                 {
@@ -636,6 +770,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (ULTC, 0, Serialized)
             {
+                Debug = "TB:ULTC"
+
                 If (RPLT == Zero)
                 {
                     If (UPLT == Zero)
@@ -652,6 +788,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (WTLT, 0, Serialized)
             {
+                Debug = "TB:WTLT"
+
                 Local0 = 0x07D0
                 Local1 = Zero
 
@@ -681,6 +819,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (DLTC, 0, Serialized)
             {
+                Debug = "TB:DLTC"
+
                 If (RPLT == Zero)
                 {
                     If (UPLT == Zero)
@@ -695,8 +835,13 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 Return (Zero)
             }
 
+            /**
+             * Wait for downlink training
+             */
             Method (WTDL, 0, Serialized)
             {
+                Debug = "TB:WTDL"
+
                 Local0 = 0x07D0
                 Local1 = Zero
                 While (Local0)
@@ -730,20 +875,21 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (PCEU, 0, Serialized)
             {
+                Debug = "TB:PCEU"
                 PRSR = Zero
 
-                // Put upstream bridge back into D0
+                Debug = "TB:PCEU - Put upstream bridge back into D0 "
                 If (PSTX != Zero)
                 {
-                    // exit D0, restored = true
+                    Debug = "TB:PCEU - exit D0, restored = true"
                     PRSR = One
                     PSTX = Zero
                 }
 
                 If (LDXX == One)
                 {
-                    // Clear link disable on upstream bridge
-                    // clear link disable, restored = true
+                    Debug = "TB:PCEU - Clear link disable on upstream bridge"
+                    Debug = "TB:PCEU - clear link disable, restored = true"
                     PRSR = One
                     LDXX = Zero
                 }
@@ -754,44 +900,45 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (PCDA, 0, Serialized)
             {
+                Debug = "TB:PCDA"
                 If (POFX () != Zero)
                 {
                     PCIA = Zero
 
-                    // Put upstream bridge into D3
+                    Debug = "TB:PCDA - Put upstream bridge into D3"
                     PSTX = 0x03
 
-                    // Set link disable on upstream bridge
+                    Debug = "TB:PCDA - Set link disable on upstream bridge"
                     LDXX = One
 
                     Local5 = (Timer + 10000000)
                     While (Timer <= Local5)
                     {
-                        // Wait for link to drop...
+                        Debug = "TB:PCDA - Wait for link to drop..."
                         If (LACR == One)
                         {
                             If (LACT == Zero)
                             {
-                                // No link activity
+                                Debug = "TB:PCDA - No link activity"
                                 Break
                             }
                         }
                         ElseIf (^PXSX.AVND == 0xFFFFFFFF)
                         {
-                            // UPSB is down - VID/DID is -1
+                            Debug = "TB:PCDA - UPSB is down - VID/DID is -1"
                             Break
                         }
 
                         Sleep (0x0A)
                     }
 
-                    // Request PCI-GPIO to be disabled
+                    Debug = "TB:PCDA - Request PCI-GPIO to be disabled"
                     GPCI = Zero
                     UGIO ()
                 }
                 Else
                 {
-                    // Already disabled, not disabling
+                    Debug = "TB:PCDA - Already disabled, not disabling"
                 }
 
                 IIP3 = One
@@ -802,6 +949,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (POFX, 0, Serialized)
             {
+                Debug = Concatenate ("TB:POFX - Result (!RTBT && !RUSB, Returns true if both TB and TB-USB are idle): ", (!RTBT && !^PXSX.DSB2.RUSB))
+
                 Return ((!RTBT && !^PXSX.DSB2.RUSB))
             }
 
@@ -812,25 +961,30 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
             Name (RUSB, One)
             Name (CTPD, Zero)
 
+
             /**
              * Send power down ack to CP
              */
             Method (CTBT, 0, Serialized)
             {
+                Debug = "TB:CTBT"
+
                 // If ((GGDV (0x02060000) == One) && (\_SB.PCI0.RP17.PXSX.AVND != 0xFFFFFFFF))
                 If (\_SB.PCI0.RP17.PSTA () == One && ^PXSX.AVND != 0xFFFFFFFF)
                 {
+                    Debug = "TB:CTBT - UPSB-device enabled"
+                    // This is the same across Titan ridge and Alpine Ridge
                     Local2 = ^PXSX.CRMW (0x3C, Zero, 0x02, 0x04000000, 0x04000000)
 
                     If (Local2 == Zero)
                     {
-                        // Set CP_ACK_POWERDOWN_OVERRIDE
+                        Debug = "TB:CTBT - Set CP_ACK_POWERDOWN_OVERRIDE"
                         CTPD = One
                     }
                 }
                 Else
                 {
-                    // UPSB-device disabled
+                    Debug = "TB:CTBT - UPSB-device disabled"
                 }
             }
 
@@ -846,6 +1000,53 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (UGIO, 0, Serialized)
             {
+                Debug = "TB:UGIO"
+
+                If (GPCI == Zero)
+                {
+                    Debug = "TB:UGIO - PCI wants off (GPCI)"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - PCI wants on (GPCI)"
+                }
+
+                If (GNHI == Zero)
+                {
+                    Debug = "TB:UGIO - NHI wants off (GNHI)"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - NHI wants on (GNHI)"
+                }
+
+                If (GXCI == Zero)
+                {
+                    Debug = "TB:UGIO - XHCI wants off (GXCI)"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - XHCI wants on (GXCI)"
+                }
+
+                If (RTBT == Zero)
+                {
+                    Debug = "TB:UGIO - TBT allows off (RTBT)"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - TBT forced on (RTBT)"
+                }
+
+                If (^PXSX.DSB2.RUSB == Zero)
+                {
+                    Debug = "TB:UGIO - USB allows off (RUSB)"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - USB forced on (RUSB)"
+                }
+
                 // Which controller is requested to be on?
                 Local0 = (GNHI || RTBT) // TBT
                 Local1 = (GXCI || ^PXSX.DSB2.RUSB) // USB
@@ -861,6 +1062,24 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     }
                 }
 
+                If (Local0 == Zero)
+                {
+                    Debug = "TB:UGIO - TBT GPIO should be off"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - TBT GPIO should be on"
+                }
+
+                If (Local1 == Zero)
+                {
+                    Debug = "TB:UGIO - USB GPIO should be off"
+                }
+                Else
+                {
+                    Debug = "TB:UGIO - USB GPIO should be on"
+                }
+
                 Local2 = Zero
 
                 /**
@@ -868,7 +1087,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 If (Local0 != Zero && \_SB.PCI0.RP17.PSTA () == Zero)
                 {
-                    // Make sure TBT is on
+                    Debug = "TB:UGIO - Make sure TBT is on"
+
                     Local2 = One
 
                     CTPD = Zero
@@ -879,14 +1099,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 If (Local1 != Zero && \_SB.PCI0.RP17.PSTA () == Zero)
                 {
-                    // Make sure TBT is on
+                    Debug = "TB:UGIO - Make sure USB is on"
+
                     Local2 = One
                 }
 
                 // if we did power on
                 If (Local2 != Zero)
                 {
-                    // TB:UGIO - force PON ()
+                    Debug = "TB:UGIO - force PON ()"
                     \_SB.PCI0.RP17.PON ()
 
                     Sleep (500)
@@ -899,12 +1120,14 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 If (Local0 == Zero && \_SB.PCI0.RP17.PSTA () == One)
                 {
-                    // TB:UGIO - Make sure TBT is off
+                    Debug = "TB:UGIO - Make sure TBT is off"
+
                     CTBT ()
 
                     If (CTPD != Zero)
                     {
-                        // Turn off TBT GPIO
+                        Debug = "TB:UGIO - Turn off TBT GPIO"
+
                         Local3 = One
                     }
                 }
@@ -914,22 +1137,29 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 If (Local1 == Zero && \_SB.PCI0.RP17.PSTA () == One)
                 {
-                    // Make sure USB is off
+                    Debug = "TB:UGIO - Make sure USB is off"
+
                     Local3 = One
                 }
 
                 // if we did power down, wait for things to settle
                 If (Local3 != Zero)
                 {
+                    Debug = "TB:UGIO - force POFF ()"
+
                     \_SB.PCI0.RP17.POFF ()
                     Sleep (100)
                 }
+
+                Debug = Concatenate ("TB:UGIO finished - Result: ", Local2)
 
                 Return (Local2)
             }
 
             Method (_PS0, 0, Serialized)  // _PS0: Power State 0
             {
+                Debug = "TB:_PS0"
+
                 If (CondRefOf (\_SB.PCI0.RP17.XPS0))
                 {
                     \_SB.PCI0.RP17.XPS0 ()
@@ -945,6 +1175,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
             Method (_PS3, 0, Serialized)  // _PS3: Power State 3
             {
+                Debug = "TB:_PS3"
+
                 If (OSDW () && \TWIN != Zero)
                 {
                     If (POFX () != Zero)
@@ -965,11 +1197,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
             Method (TGPE, 0, Serialized)
             {
+                Debug = "TB:TGPE"
+
                 Notify (\_SB.PCI0.RP17, 0x02) // Device Wake
             }
 
             Method (UTLK, 2, Serialized)
             {
+                Debug = "TB:UTLK"
+
                 Local0 = Zero
 
                 // if CIO force power is zero
@@ -1031,9 +1267,17 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                         Local0++
 
+                        // CIO force power back to 0
+
                         Sleep (0x03E8)
                     }
                 }
+
+                Debug = Concatenate ("UTLK: Up Stream VID/DID: ", ^PXSX.AVND)
+                Debug = Concatenate ("UTLK: Root Port VID/DID: ", AVND)
+                Debug = Concatenate ("UTLK: Root Port PRIB: ", PRIB)
+                Debug = Concatenate ("UTLK: Root Port SECB: ", SECB)
+                Debug = Concatenate ("UTLK: Root Port SUBB: ", SUBB)
             }
 
             OperationRegion (A1E0, PCI_Config, Zero, 0x40)
@@ -1182,6 +1426,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 Method (_STA, 0, NotSerialized)  // _STA: Status
                 {
+                    Debug = "TB:UPSB:_STA()"
+
                     If (OSDW ())
                     {
                         Return (0xF) // visible for OSX
@@ -1205,13 +1451,14 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 */
                 Method (PCED, 0, Serialized)
                 {
-                    // Request TB-GPIO to be enabled
+                    Debug = "TB:UPSB:PCED"
+                    Debug = "TB:UPSB:PCED - Request TB-GPIO to be enabled"
                     ^^GPCI = One
 
                     // power up the controller
                     If (^^UGIO () != Zero)
                     {
-                        // GPIOs changed, restored = true
+                        Debug = "TB:UPSB:PCED - GPIOs changed, restored = true"
                         ^^PRSR = One
                     }
 
@@ -1224,15 +1471,17 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                         Local0 = One
 
-                        // Set link disable on upstream bridge
+                        Debug = "TB:UPSB:PCED - Set link disable on upstream bridge"
                         ^^LDXX = One
                     }
 
                     Local5 = (Timer + 0x00989680)
 
+                    Debug = Concatenate ("TB:UPSB:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR: ", ^^PRSR)
+
                     If (^^PRSR != Zero)
                     {
-                        // Wait for power up
+                        Debug = "TB:UPSB:PCED - Wait for power up"
 
                         Sleep (0x1E)
 
@@ -1243,24 +1492,24 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             If (Local1 != Zero) {}
                             ElseIf (Local0 != Zero)
                             {
-                                // Wait for power up
+                                Debug = "TB:UPSB:PCED - Clear link disable on upstream bridge"
                                 ^^LDXX = Zero
                             }
 
                             While (Timer <= Local5)
                             {
-                                // Wait for link training...
+                                Debug = "TB:UPSB:PCED - Wait for link training..."
                                 If (^^LACR == Zero)
                                 {
                                     If (^^LTRN != One)
                                     {
-                                        // Link training cleared
+                                        Debug = "TB:UPSB:PCED - GENSTEP WA - Link training cleared"
                                         Break
                                     }
                                 }
                                 ElseIf ((^^LTRN != One) && (^^LACT == One))
                                 {
-                                    // GENSTEP WA - Link training cleared and link is active
+                                    Debug = "TB:UPSB:PCED - GENSTEP WA - Link training cleared and link is active"
                                     Break
                                 }
 
@@ -1270,10 +1519,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             Sleep (0x78)
                             While (Timer <= Local5)
                             {
-                                // PEG WA - Wait for config space...
+                                Debug = "TB:UPSB:PCED - PEG WA - Wait for config space..."
                                 If (AVND != 0xFFFFFFFF)
                                 {
-                                    // UPSB UP - Read VID/DID
+                                    Debug = "TB:UPSB:PCED - UPSB UP - Read VID/DID"
                                     Break
                                 }
 
@@ -1284,22 +1533,22 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             ^^LRTN = One
                         }
 
-                        // Wait for downstream bridge to appear
+                        Debug = "TB:UPSB:PCED - Wait for downstream bridge to appear"
                         Local5 = (Timer + 0x00989680)
                         While (Timer <= Local5)
                         {
-                            // Wait for link training...
+                            Debug = "TB:UPSB:PCED - Wait for link training..."
                             If (^^LACR == Zero)
                             {
                                 If (^^LTRN != One)
                                 {
-                                    // Link training cleared
+                                    Debug = "TB:UPSB:PCED - Link training cleared"
                                     Break
                                 }
                             }
                             ElseIf ((^^LTRN != One) && (^^LACT == One))
                             {
-                                // Link training cleared and link is active
+                                Debug = "TB:UPSB:PCED - Link training cleared and link is active"
                                 Break
                             }
 
@@ -1313,10 +1562,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     While (Timer <= Local5)
                     {
-                        // Wait for config space...
+                        Debug = "TB:UPSB:PCED - Wait for config space..."
                         If (AVND != 0xFFFFFFFF)
                         {
-                            // UPSB up
+                            Debug = "TB:UPSB:PCED - UPSB up"
                             Break
                         }
 
@@ -1388,6 +1637,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 Method (AMPE, 0, Serialized)
                 {
+                    Debug = "TB:UPSB:AMPE() - Hotplug notify to NHI0 by ACPI"
+
                     Notify (^DSB0.NHI0, Zero) // Bus Check
                 }
 
@@ -1399,6 +1650,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 Method (UMPE, 0, Serialized)
                 {
+                    Debug = "TB:UPSB:UMPE() - Hotplug notify XHC2 & XHC by NHI"
+
                     Notify (^DSB2.XHC2, Zero) // Bus Check
 
                     If (CondRefOf (\_SB.PCI0.XHC))
@@ -1417,8 +1670,14 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 {
                     If (MDUV != Arg0)
                     {
+                        Debug = Concatenate ("TB:UPSB:MUST calling Hotplug to XHC2 & XHC setting MDUV to: ", Arg0)
+
                         MDUV = Arg0
                         UMPE ()
+                    }
+                    Else
+                    {
+                        Debug = Concatenate ("TB:UPSB:MUST not changed, leavin MDUV, called with args: ", Arg0)
                     }
 
                     Return (Zero)
@@ -1426,6 +1685,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 Method (_PS0, 0, Serialized)  // _PS0: Power State 0
                 {
+                    Debug = "TB:UPSB:_PS0"
+
                     If (OSDW ())
                     {
                         PCED () // enable downlink
@@ -1440,12 +1701,13 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                 Method (_PS3, 0, Serialized)  // _PS3: Power State 3
                 {
+                    Debug = "TB:UPSB:_PS3"
+
                     If (OSDW ())
                     {
                         \_SB.PCI0.RP17.TBST ()
                     }
                 }
-
 
                 OperationRegion (H548, PCI_Config, 0x0548, 0x20)
                 Field (H548, DWordAcc, Lock, Preserve)
@@ -1476,6 +1738,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                 Method (CIOW, 4, Serialized)
                 {
                     WDAT = Arg3
+                    Debug = Concatenate ("TB:UPSB:CIOW - WDAT: ", WDAT)
+
                     DWIX = Arg0
                     PORT = Arg1
                     SPCE = Arg2
@@ -1505,9 +1769,13 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         Local1 = TMOT /* \_SB.PCI0.RP17.PXSX.TMOT */
                     }
 
+                    If (Local1)
+                    {
+                        Debug = Concatenate ("TB:UPSB:CIOW - Error: ", Local1)
+                    }
+
                     Return (Local1)
                 }
-
 
                 /**
                 * CIO read
@@ -1542,6 +1810,12 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     If (Local1 == Zero)
                     {
                         Local1 = TMOT /* \_SB.PCI0.RP17.PXSX.TMOT */
+                    }
+
+                    If (Local1)
+                    {
+                        Debug = Concatenate ("TB:UPSB:CIOR - Error: ", Local1)
+                        Debug = Concatenate ("TB:UPSB:CIOR - RDAT: ", RDAT)
                     }
 
                     If (Local1 == Zero)
@@ -1580,8 +1854,12 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             If (DerefOf (Local2 [Zero]) == Zero)
                             {
                                 Local2 = DerefOf (Local2 [One])
+                                Debug = Concatenate ("TB:UPSB:CRMW - Read Value: ", Local2)
+
                                 Local2 &= ~Arg4
                                 Local2 |= Arg3
+                                // Debug = Concatenate ("TB:UPSB:CRMW - Write Value: ", Local2)
+
                                 Local2 = CIOW (Arg0, Arg1, Arg2, Local2)
 
                                 If (Local2 == Zero)
@@ -1591,10 +1869,14 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                                     If (DerefOf (Local2 [Zero]) == Zero)
                                     {
                                         Local2 = DerefOf (Local2 [One])
+                                        Debug = Concatenate ("TB:UPSB:CRMW - Read Value 2: ", Local2)
+
                                         Local2 &= Arg4
 
                                         If (Local2 == Arg3)
                                         {
+                                            Debug = "TB:UPSB:CRMW - Success"
+
                                             Local1 = Zero
 
                                             Break
@@ -1609,6 +1891,11 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         }
                     }
 
+                    If (Local1)
+                    {
+                        Debug = Concatenate ("TB:UPSB:CRMW - Error value: ", Local1)
+                    }
+
                     Return (Local1)
                 }
 
@@ -1617,6 +1904,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                  */
                 Method (LSTX, 2, Serialized)
                 {
+                    Debug = "TB:UPSB:LSTX"
+
                     If (T2PC != 0xFFFFFFFF)
                     {
                         Local0 = Zero
@@ -1757,20 +2046,21 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     Method (PCEU, 0, Serialized)
                     {
+                        Debug = "TB:DSB0:PCEU"
                         PRSR = Zero
 
-                        // Put upstream bridge back into D0
+                        Debug = "TB:DSB0:PCEU - Put upstream bridge back into D0 "
                         If (PSTA != Zero)
                         {
-                            // exit D0, restored = true
+                            Debug = "TB:DSB0:PCEU - exit D0, restored = true"
                             PRSR = One
                             PSTA = Zero
                         }
 
                         If (LDIS == One)
                         {
-                            // Clear link disable on upstream bridge
-                            // clear link disable, restored = true
+                            Debug = "TB:DSB0:PCEU - Clear link disable on upstream bridge"
+                            Debug = "TB:DSB0:PCEU - clear link disable, restored = true"
                             PRSR = One
                             LDIS = Zero
                         }
@@ -1778,43 +2068,47 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     Method (PCDA, 0, Serialized)
                     {
+                        Debug = "TB:DSB0:PCDA"
+
                         If (POFX () != Zero)
                         {
                             PCIA = Zero
-                            // Put upstream bridge into D3
+                            Debug = "TB:DSB0:PCDA - Put upstream bridge into D3"
+
                             PSTA = 0x03
-                            // Set link disable on upstream bridge
+                            Debug = "TB:DSB0:PCDA - Set link disable on upstream bridge"
+
                             LDIS = One
 
                             Local5 = (Timer + 0x00989680)
 
                             While (Timer <= Local5)
                             {
-                                // Wait for link to drop...
+                                Debug = "TB:DSB0:PCDA - Wait for link to drop..."
                                 If (LACR == One)
                                 {
                                     If (LACT == Zero)
                                     {
-                                        // No link activity
+                                        Debug = "TB:DSB0:PCDA - No link activity"
                                         Break
                                     }
                                 }
                                 ElseIf (^NHI0.AVND == 0xFFFFFFFF)
                                 {
-                                    // VID/DID is -1
+                                    Debug = "TB:DSB0:PCDA - VID/DID is -1"
                                     Break
                                 }
 
                                 Sleep (0x0A)
                             }
 
-                            // Request NHI-GPIO to be disabled
+                            Debug = "TB:DSB0:PCDA - Request NHI-GPIO to be disabled"
                             \_SB.PCI0.RP17.GNHI = Zero
                             \_SB.PCI0.RP17.UGIO ()
                         }
                         Else
                         {
-                            // Not disabling
+                            Debug = "TB:DSB0:PCDA - Not disabling"
                         }
 
                         IIP3 = One
@@ -1822,11 +2116,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     Method (POFX, 0, Serialized)
                     {
+                        Debug = Concatenate ("TB:DSB0:POFX - Result (!RTBT): ", (!\_SB.PCI0.RP17.RTBT))
+
                         Return (!\_SB.PCI0.RP17.RTBT)
                     }
 
                     Method (_PS0, 0, Serialized)  // _PS0: Power State 0
                     {
+                        Debug = "TB:DSB0:_PS0"
+
                         If (OSDW ())
                         {
                             PCEU ()
@@ -1837,6 +2135,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                     Method (_PS3, 0, Serialized)  // _PS3: Power State 3
                     {
+                        Debug = "TB:DSB0:_PS3"
+
                         If (OSDW ())
                         {
                             PCDA ()
@@ -1874,14 +2174,16 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                          */
                         Method (PCED, 0, Serialized)
                         {
-                            // Request NHI-GPIO to be enabled
+                            Debug = "TB:NHI0:PCED"
+                            Debug = "TB:NHI0:PCED - Request NHI-GPIO to be enabled"
                             \_SB.PCI0.RP17.GNHI = One
 
                             // we should not need to force power since 
                             // UPSX init should already have done so!
                             If (\_SB.PCI0.RP17.UGIO () != Zero)
                             {
-                                // GPIOs changed, restored = true
+                                Debug = "TB:NHI0:PCED - GPIOs changed, restored = true"
+
                                 ^^PRSR = One
                             }
 
@@ -1890,27 +2192,28 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                             // Local1 = Zero
 
                             Local5 = (Timer + 0x00989680)
+                            Debug = Concatenate ("TB:NHI0:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR: ", ^^PRSR)
 
                             If (^^PRSR != Zero)
                             {
-                                // Wait for power up
-                                // Wait for downstream bridge to appear
+                                Debug = "TB:NHI0:PCED - Wait for power up"
+                                Debug = "TB:NHI0:PCED - Wait for downstream bridge to appear"
 
                                 Local5 = (Timer + 0x00989680)
                                 While (Timer <= Local5)
                                 {
-                                    // Wait for link training...
+                                    Debug = "TB:NHI0:PCED - Wait for link training..."
                                     If (^^LACR == Zero)
                                     {
                                         If (^^LTRN != One)
                                         {
-                                            // Link training cleared
+                                            Debug = "TB:NHI0:PCED - Link training cleared"
                                             Break
                                         }
                                     }
                                     ElseIf ((^^LTRN != One) && (^^LACT == One))
                                     {
-                                        // Link training cleared and link is active
+                                        Debug = "TB:NHI0:PCED - Link training cleared and link is active"
                                         Break
                                     }
 
@@ -1924,10 +2227,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                             While (Timer <= Local5)
                             {
-                                // Wait for config space...
+                                Debug = "TB:NHI0:PCED - Wait for config space..."
                                 If (AVND != 0xFFFFFFFF)
                                 {
-                                    // DSB0 UP - Read VID/DID
+                                    Debug = "TB:NHI0:PCED - DSB0 UP - Read VID/DID"
                                     ^^PCIA = One
                                     Break
                                 }
@@ -1965,17 +2268,19 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         */
                         Method (RTPC, 1, Serialized)
                         {
+                            Debug = Concatenate ("TB:NHI0:RTPC called with args: ", Arg0)
 
                             If (Arg0 <= One)
                             {
                                 // Force TB on if usb is on - Test XXX
                                 If (!(Arg0 == Zero && \_SB.PCI0.RP17.PXSX.DSB2.RUSB == One))
                                 {
+                                    Debug = Concatenate ("TB:NHI0:RTPC setting RTBT to: ", Arg0)
                                     \_SB.PCI0.RP17.RTBT = Arg0
                                 }
                                 Else
                                 {
-                                    // leaving RTBT as RUSB is One
+                                    Debug = "TB:NHI0:RTPC leaving RTBT as RUSB is One"
                                 }
                             }
 
@@ -1988,13 +2293,15 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                          */
                         Method (MUST, 1, Serialized)
                         {
-                            // called Cable detection by NHI
+                            Debug = "TB:NHI0:MUST - called Cable detection by NHI"
 
                             Return (\_SB.PCI0.RP17.PXSX.MUST (Arg0))
                         }
 
                         Method (_PS0, 0, Serialized)  // _PS0: Power State 0
                         {
+                            Debug = "TB:NHI0:_PS0"
+
                             If (OSDW ())
                             {
                                 PCED ()
@@ -2007,6 +2314,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
 
                         Method (_PS3, 0, Serialized)  // _PS3: Power State 3
                         {
+                            Debug = "TB:NHI0:_PS3"
                         }
 
                         Method (TRPE, 2, Serialized)
@@ -2158,43 +2466,23 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                         {
                             Local0 = Package ()
                                 {
-                                    "AAPL,slot-name", 
-                                    Buffer (0x0C)
-                                    {
-                                        "Thunderbolt"
-                                    },
-                                    "name", 
-                                    Buffer (0x23)
-                                    {
-                                        "Titan Ridge Thunderbolt Controller"
-                                    }, 
-                                    "model",
-                                    Buffer (0x2C)
-                                    {
-                                        "Intel JHL7540 Titan Ridge Thunderbolt 3 NHI"
-                                    }, 
-
-                                    "device_type", 
-                                    Buffer (0x17)
-                                    {
-                                        "Thunderbolt-Controller"
-                                    },
                                     "ThunderboltDROM",
                                     Buffer ()
                                     {
-                                        /* 0000 */  0x62, 0x00, 0x01, 0x09, 0x00, 0x00, 0x00, 0x00,  // b.......
-                                        /* 0008 */  0x00, 0xC7, 0xC0, 0x3D, 0x42, 0x01, 0x59, 0x00,  // ...=B.Y.
-                                        /* 0010 */  0x27, 0x01, 0x11, 0x20, 0x01, 0x01, 0x08, 0x81,  // '.. ....
+                                        /* 0000 */  0x84, 0x00, 0x45, 0x79, 0x96, 0x69, 0x0C, 0x84,  // ..Ey.i..
+                                        /* 0008 */  0x00, 0xC6, 0x9B, 0x12, 0xD2, 0x01, 0x63, 0x00,  // ......c.
+                                        /* 0010 */  0x01, 0x00, 0x0D, 0x00, 0x01, 0x00, 0x08, 0x81,  // ........
                                         /* 0018 */  0x80, 0x02, 0x80, 0x00, 0x00, 0x00, 0x08, 0x82,  // ........
-                                        /* 0020 */  0x90, 0x01, 0x80, 0x00, 0x00, 0x00, 0x02, 0xC3,  // ........
-                                        /* 0028 */  0x02, 0xC4, 0x05, 0x85, 0x50, 0x00, 0x00, 0x05,  // ....P...
-                                        /* 0030 */  0x86, 0x50, 0x00, 0x00, 0x02, 0x87, 0x0B, 0x88,  // .P......
-                                        /* 0038 */  0x20, 0x01, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00,  //  ..d....
-                                        /* 0040 */  0x00, 0x03, 0x89, 0x80, 0x02, 0xCA, 0x02, 0xCB,  // ........
-                                        /* 0048 */  0x09, 0x01, 0x4C, 0x65, 0x6E, 0x6F, 0x76, 0x6F,  // ..Lenovo
-                                        /* 0050 */  0x00, 0x15, 0x02, 0x4C, 0x45, 0x47, 0x49, 0x4F,  // ...LEGIO
-                                        /* 0058 */  0x4E, 0x20, 0x59, 0x39, 0x30, 0x30, 0x30, 0x58,  // N Y9000X
-                                        /* 0060 */  0x20, 0x32, 0x30, 0x32, 0x30, 0x00               //  2020.
+                                        /* 0020 */  0x90, 0x01, 0x80, 0x00, 0x00, 0x00, 0x08, 0x83,  // ........
+                                        /* 0028 */  0x80, 0x04, 0x80, 0x01, 0x00, 0x00, 0x08, 0x84,  // ........
+                                        /* 0030 */  0x90, 0x03, 0x80, 0x01, 0x00, 0x00, 0x05, 0x85,  // ........
+                                        /* 0038 */  0x50, 0x00, 0x00, 0x05, 0x86, 0x50, 0x00, 0x00,  // P....P..
+                                        /* 0040 */  0x02, 0x87, 0x0B, 0x88, 0x20, 0x01, 0x00, 0x64,  // .... ..d
+                                        /* 0048 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x89, 0x80,  // ........
+                                        /* 0050 */  0x05, 0x8A, 0x50, 0x40, 0x00, 0x05, 0x8B, 0x50,  // ..P@...P
+                                        /* 0058 */  0x40, 0x00, 0x08, 0x01, 0x41, 0x70, 0x70, 0x6C,  // @...Appl
+                                        /* 0060 */  0x65, 0x00, 0x0E, 0x02, 0x54, 0x69, 0x74, 0x61,  // e...Tita
+                                        /* 0068 */  0x6E, 0x20, 0x52, 0x69, 0x64, 0x67, 0x65, 0x00   // n Ridge.
                                     },
 
                                     "ThunderboltConfig", 
@@ -2250,6 +2538,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                          */
                         Method (SXFP, 1, Serialized)
                         {
+                            Debug = "TB:NHI0:SXFP"
                         }
                     }
                 }

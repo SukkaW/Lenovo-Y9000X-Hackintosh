@@ -14,6 +14,8 @@ DefinitionBlock ("", "SSDT", 2, "CORP", "XCPM", 0x00003000)
         {
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
+                Debug = "SSDT_XCPM: Writing plugin-type to Registry!"
+
                 If (!Arg2)
                 {
                     Return (Buffer (One)
