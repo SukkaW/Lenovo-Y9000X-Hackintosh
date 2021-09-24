@@ -30,16 +30,21 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "INIT", 0x00000000)
                 // DPTF = 0
                 // Force GPHD to 2 in order to enable GPI0 device
                 GPHD = 2
-                // Force TPDD to One inorder to disable I2C1.TPAD device (while it will enable PS2M device)
+                // Force TPDD to One in order to disable I2C1.TPAD device
+                // And finally stupid Lenovo remove PS2M device in the DSDT
                 TPDD = One
                 // Enable APIC Interrupt Mode
                 USTP = One
                 // Patch OSYS to native value of darwin
-                // Pair with SSDT-03-XOSI to make sure it works
                 OSYS = 0x07DF
             }
 
             XINI ()
+
+            If (OSDW ()) {
+                // Patch OSYS again to prevent race condition
+                OSYS = 0x07DF
+            }
 
             // Thunderbolt-setup
             If (OSDW () && CondRefOf (\_SB.PCI0.RP17.INIT))

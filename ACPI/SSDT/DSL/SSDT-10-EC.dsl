@@ -20,7 +20,7 @@
  * Reference USB: https://applelife.ru/posts/550233
  * Reference EC: https://applelife.ru/posts/807985
  */
-DefinitionBlock ("", "SSDT", 2, "SUKA", "SsdtEC", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "SUKA", "FAKEEC", 0x00001000)
 {
     External (OSDW, MethodObj) // 0 Arguments
     External (_SB_.PCI0.LPCB, DeviceObj)
