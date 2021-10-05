@@ -441,7 +441,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
              */
             Method (TBST, 0, Serialized)
             {
-                Debug = Concatenate ("TB:TBST - MDUV: ", \_SB.PCI0.RP17.PXSX.MDUV)
+                If (CondRefOf (\_SB.PCI0.RP17.PXSX.MDUV))
+                {
+                    Debug = Concatenate ("TB:TBST - MDUV: ", \_SB.PCI0.RP17.PXSX.MDUV)
+                }
                 Debug = Concatenate ("TB:TBST - NHI: ", \_SB.PCI0.RP17.NH00)
                 Debug = Concatenate ("TB:TBST - Root port: ", \_SB.PCI0.RP17.RPVD)
                 Debug = Concatenate ("TB:TBST - Upstream port: ", \_SB.PCI0.RP17.UPVD)

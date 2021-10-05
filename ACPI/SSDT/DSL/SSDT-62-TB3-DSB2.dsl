@@ -14,7 +14,7 @@ DefinitionBlock ("", "SSDT", 2, "tyler", "_TBDSB2", 0x00003000)
     External (_SB.PCI0.RP17.PXSX, DeviceObj)
     External (_SB.PCI0.RP17.PXSX.TBDU, DeviceObj)
 
-    External (_SB.PCI0.RP17.TBST, MethodObj) // 0 Arguments
+    // External (_SB.PCI0.RP17.TBST, MethodObj) // 0 Arguments
     External (_SB.PCI0.RP17.UGIO, MethodObj) // 0 Arguments
 
     External (_SB.PCI0.RP17.GXCI, IntObj)
