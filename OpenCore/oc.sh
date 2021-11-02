@@ -53,7 +53,7 @@ function copyErr() {
 # Workaround for Release Binaries that don't include "RELEASE" in their file names (head or grep)
 function dGR() {
   local rawURL
-  local urls=()
+  local url
 
   if [[ -n ${3+x} ]]; then
     if [[ "$2" == "PreRelease" ]]; then
@@ -71,13 +71,12 @@ function dGR() {
   if [[ -n ${GITHUB_ACTIONS+x} || ${gh_api} == false ]]; then
     rawURL="https://github.com/$1/releases$tag"
 
-    urls+=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | grep -m 1 RELEASE | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
+    url=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | grep -m 1 RELEASE | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
   else
     rawURL="https://api.github.com/repos/$1/releases$tag"
-    urls+=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | grep -m 1 RELEASE | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
+    url=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | grep -m 1 RELEASE | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
   fi
 
-  for url in "${urls[@]}"; do
     if [[ -z ${url} || ${url} == "https://github.com" ]]; then
       networkErr "$1"
     fi
@@ -87,7 +86,6 @@ function dGR() {
     cd ./"$3" || exit 1
     curl -# -L -O "${url}" || networkErr "$1"
     cd - > /dev/null 2>&1 || exit 1
-  done
 }
 
 function init() {
