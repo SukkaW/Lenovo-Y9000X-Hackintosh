@@ -1,0 +1,7 @@
+[   14.280430] snd_hda_codec_realtek hdaudioC0D0: autoconfig for ALC285: line_outs=1 (0x17/0x0/0x0/0x0/0x0) type:speaker
+[   14.280439] snd_hda_codec_realtek hdaudioC0D0:    speaker_outs=0 (0x0/0x0/0x0/0x0/0x0)
+[   14.280443] snd_hda_codec_realtek hdaudioC0D0:    hp_outs=1 (0x21/0x0/0x0/0x0/0x0)
+[   14.280447] snd_hda_codec_realtek hdaudioC0D0:    mono: mono_out=0x0
+[   14.280449] snd_hda_codec_realtek hdaudioC0D0:    inputs:
+[   14.280451] snd_hda_codec_realtek hdaudioC0D0:      Mic=0x19
+[   14.280454] snd_hda_codec_realtek hdaudioC0D0:      Internal Mic=0x12

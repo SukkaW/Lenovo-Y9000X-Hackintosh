@@ -1,0 +1,35 @@
+
+Verbs from Linux Codec Dump File: codec#0.txt
+
+Codec: Realtek ALC285   Address: 0   DevID: 283902597 (0x10ec0285)
+
+   Jack   Color  Description                  Node     PinDefault             Original Verbs
+--------------------------------------------------------------------------------------------------------
+Digital Unknown  Mic at Int N/A              18 0x12   0x90a60130   01271c30 01271d01 01271ea6 01271f90
+Unknown Unknown  Line Out at Ext N/A         19 0x13   0x40000000   01371c00 01371d00 01371e00 01371f40
+    1/8   Black  Speaker at Ext Rear         20 0x14   0x411111f0   01471cf0 01471d11 01471e11 01471f41
+    1/8   Black  Speaker at Ext Rear         22 0x16   0x411111f0   01671cf0 01671d11 01671e11 01671f41
+ Analog Unknown  Speaker at Int N/A          23 0x17   0x90170110   01771c10 01771d01 01771e17 01771f90
+    1/8   Black  Speaker at Ext Rear         24 0x18   0x411111f0   01871cf0 01871d11 01871e11 01871f41
+    1/8   Black  Mic at Ext Right            25 0x19   0x04a11040   01971c40 01971d10 01971ea1 01971f04
+    1/8   Black  Speaker at Ext Rear         26 0x1a   0x411111f0   01a71cf0 01a71d11 01a71e11 01a71f41
+ Speaker at Ext Rear    0x1b 0x1b                        1091637744 01b71cf0 01b71d11     01b71e11 01b71f41  
+Unknown Unknown  Modem Line at Ext N/A       29 0x1d   0x40600001   01d71c01 01d71d00 01d71e60 01d71f40
+    1/8   Black  Speaker at Ext Rear         30 0x1e   0x411111f0   01e71cf0 01e71d11 01e71e11 01e71f41
+    1/8   Black  HP Out at Ext Right         33 0x21   0x0421101f   02171c1f 02171d10 02171e21 02171f04
+--------------------------------------------------------------------------------------------------------
+
+
+   Jack   Color  Description                  Node     PinDefault             Modified Verbs
+--------------------------------------------------------------------------------------------------------
+Digital Unknown  Mic at Int N/A              18 0x12   0x90a60130   01271c30 01271d00 01271ea6 01271f90
+Unknown Unknown  Line Out at Ext N/A         19 0x13   0x40000000   01371c00 01371d00 01371e00 01371f40
+ Analog Unknown  Speaker at Int N/A          23 0x17   0x90170110   01771c20 01771d00 01771e17 01771f90
+    1/8   Black  Mic at Ext Right            25 0x19   0x04a11040   01971c40 01971d10 01971ea1 01971f00
+Unknown Unknown  Modem Line at Ext N/A       29 0x1d   0x40600001   01d71c50 01d71d00 01d71e60 01d71f40
+    1/8   Black  HP Out at Ext Right         33 0x21   0x0421101f   02171c60 02171d10 02171e21 02171f00
+--------------------------------------------------------------------------------------------------------
+
+Modified Verbs in One Line: 01271c30 01271d00 01271ea6 01271f90 01371c00 01371d00 01371e00 01371f40 01771c20 01771d00 01771e17 01771f90 01971c40 01971d10 01971ea1 01971f00 01d71c50 01d71d00 01d71e60 01d71f40 02171c60 02171d10 02171e21 02171f00
+--------------------------------------------------------------------------------------------------------
+
