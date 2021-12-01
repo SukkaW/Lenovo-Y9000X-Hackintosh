@@ -23,7 +23,7 @@
 DefinitionBlock ("", "SSDT", 2, "SUKA", "FAKEEC", 0x00001000)
 {
     External (OSDW, MethodObj) // 0 Arguments
-    External (_SB_.PCI0.LPCB, DeviceObj)
+    External (_SB.PCI0.LPCB, DeviceObj)
 
     Scope (\_SB.PCI0.LPCB)
     {

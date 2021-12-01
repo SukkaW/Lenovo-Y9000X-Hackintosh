@@ -27,7 +27,9 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB3XHC2", 0x00003000)
 
     External (RPS0, IntObj)
     External (TBTS, IntObj)
-    External (USME, IntObj)
+    // External (USME, IntObj)
+
+    Name (USME, One)
 
     If (((TBTS == One) && (RPS0 == 0x11)))
     {

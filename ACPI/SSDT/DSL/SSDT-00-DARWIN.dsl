@@ -41,19 +41,16 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "BASE", 0)
         Return (Zero)
     }
 
-    Scope (\)
+    // Detection of Darwin (Native Method Provided by macOS's ACPI)
+    Method (OSDW, 0, NotSerialized)
     {
-        // Detection of Darwin (Native Method Provided by macOS's ACPI)
-        Method (OSDW, 0, NotSerialized)
+        If (CondRefOf (\_OSI, Local0))
         {
-            If (CondRefOf (\_OSI, Local0))
+            If (_OSI ("Darwin"))
             {
-                If (_OSI ("Darwin"))
-                {
-                    Return (One) // is Darwin
-                }
+                Return (One) // is Darwin
             }
-            Return (Zero)
         }
+        Return (Zero)
     }
 }

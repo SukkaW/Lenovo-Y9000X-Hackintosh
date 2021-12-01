@@ -1445,10 +1445,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
                     Return (SECB) /* \_SB.PCI0.RP17.PXSX.SECB */
                 }
 
-                Method (_RMV, 0, NotSerialized)  // _RMV: Removal Status
-                {
-                    Return (Zero)
-                }
+                // Method (_RMV, 0, NotSerialized)  // _RMV: Removal Status
+                // {
+                //    Return (Zero)
+                // }
 
                 /**
                 * Enable downstream link
