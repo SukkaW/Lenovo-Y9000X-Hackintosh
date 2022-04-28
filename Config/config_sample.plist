@@ -808,8 +808,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -828,8 +826,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -848,8 +844,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -868,8 +862,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -888,8 +880,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -908,8 +898,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -928,8 +916,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -948,8 +934,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -968,8 +952,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -988,8 +970,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1008,8 +988,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1028,8 +1006,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1048,8 +1024,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1068,8 +1042,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1088,8 +1060,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1108,8 +1078,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1128,8 +1096,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1148,8 +1114,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1168,8 +1132,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1188,8 +1150,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1208,8 +1168,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1228,8 +1186,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1248,8 +1204,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1268,8 +1222,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1288,8 +1240,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1308,8 +1258,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1328,8 +1276,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1348,8 +1294,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1368,8 +1312,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1388,8 +1330,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1408,8 +1348,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1428,8 +1366,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1448,8 +1384,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1468,8 +1402,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1488,8 +1420,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 			<dict>
 				<key>Arch</key>
@@ -1508,8 +1438,6 @@
 				<string></string>
 				<key>PlistPath</key>
 				<string>Contents/Info.plist</string>
-				<key>Strategy</key>
-				<string>Disable</string>
 			</dict>
 		</array>
 		<key>Block</key>
@@ -1801,36 +1729,6 @@
 				<key>Skip</key>
 				<integer>0</integer>
 			</dict>
-			<dict>
-				<key>Arch</key>
-				<string>x86_64</string>
-				<key>Base</key>
-				<string>_disable_serial_output</string>
-				<key>Comment</key>
-				<string>Enable early serial output on RELEASE kernel</string>
-				<key>Count</key>
-				<integer>1</integer>
-				<key>Enabled</key>
-				<false/>
-				<key>Find</key>
-				<data></data>
-				<key>Identifier</key>
-				<string>kernel</string>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>MaxKernel</key>
-				<string></string>
-				<key>MinKernel</key>
-				<string></string>
-				<key>Replace</key>
-				<data>AA==</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-			</dict>
 		</array>
 		<key>Quirks</key>
 		<dict>
@@ -1841,6 +1739,8 @@
 			<key>AppleXcpmExtraMsrs</key>
 			<false/>
 			<key>AppleXcpmForceBoost</key>
+			<false/>
+			<key>CustomPciSerialDevice</key>
 			<false/>
 			<key>CustomSMBIOSGuid</key>
 			<false/>
@@ -1853,6 +1753,8 @@
 			<key>ExtendBTFeatureFlags</key>
 			<true/>
 			<key>ExternalDiskIcons</key>
+			<false/>
+			<key>ForceAquantiaEthernet</key>
 			<false/>
 			<key>ForceSecureBootScheme</key>
 			<false/>
@@ -1932,10 +1834,6 @@
 			<integer>0</integer>
 			<key>DisplayLevel</key>
 			<integer>2147483650</integer>
-			<key>LogModules</key>
-			<string>*</string>
-			<key>SerialInit</key>
-			<false/>
 			<key>SysReport</key>
 			<false/>
 			<key>Target</key>
@@ -1975,6 +1873,13 @@
 			<string>j215</string>
 			<key>Vault</key>
 			<string>Optional</string>
+		</dict>
+		<key>Serial</key>
+		<dict>
+			<key>Init</key>
+			<false/>
+			<key>Override</key>
+			<false/>
 		</dict>
 		<key>Tools</key>
 		<array>
@@ -2116,12 +2021,12 @@
 			</dict>
 			<key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key>
 			<dict>
-				<key>#INFO (prev-lang:kbd)</key>
-				<string>en:252 (ABC), set 656e3a323532</string>
 				<key>SystemAudioVolume</key>
 				<data>Rg==</data>
+				<key>SystemAudioVolumeDB</key>
+				<data>4g==</data>
 				<key>boot-args</key>
-				<string>brcmfx-country=#a alctcsel=1 brcmfx-aspm -revsbvmm</string>
+				<string>brcmfx-country=#a alctcsel=1 brcmfx-aspm -revsbvmm igfxrpsc=1</string>
 				<key>csr-active-config</key>
 				<data>AAAAAA==</data>
 				<key>prev-lang:kbd</key>
