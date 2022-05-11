@@ -11,7 +11,8 @@
 
 GH_KEXTS=(
     "VoodooI2C/VoodooI2C"
-    "cholonam/Sinetek-rtsx"
+    "0xFireWolf/RealtekCardReader"
+    "0xFireWolf/RealtekCardReaderFriend"
     "acidanthera/VirtualSMC"
     "acidanthera/AirportBrcmFixup"
     "acidanthera/BrcmPatchRAM"
@@ -48,7 +49,8 @@ KEXT_ITEMS=(
     "BrcmPatchRAM3.kext"
     "BlueToolFixup.kext"
     "BrightnessKeys.kext"
-    "Release/Sinetek-rtsx.kext"
+    "RealtekCardReader.kext"
+    "RealtekCardReaderFriend.kext"
     "NVMeFix.kext"
     "YogaSMC.kext"
     "CPUFriend.kext"
