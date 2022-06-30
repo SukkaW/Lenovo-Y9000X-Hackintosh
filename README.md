@@ -30,7 +30,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | Feature | Status | Dependency | Remarks |
 | --- | --- | --- | --- |
 | Fingerprint Reader<br>指纹识别 | ❌ | Disabled using both SSDT & USB Mapping<br>已通过 SSDT 和 USB 定制禁用 | TouchID is not supported in Hackintosh<br>黑苹果不支持 TouchID |
-| Audio playback through speaker<br>通过扬声器播放音频 | ❌ | | Y9000X's Speaker is connected to an unsupported Power Amplifier<br>Y9000X 的扬声器连接在一个无法驱动的功率放大器上 |
+| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | | ~~Y9000X's Speaker is connected to an unsupported Power Amplifier<br>Y9000X 的扬声器连接在一个无法驱动的功率放大器上~~ 已支持 |
 
 ### Video and Audio / 音频与视频
 
@@ -40,6 +40,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | Audio Recording<br>麦克风录音 | ✅ | `AppleALC.kext` | |
 | Audio Playback through 3.5mm<br>通过 3.5mm 接口播放音频 | ✅ | `AppleALC.kext` | |
 | Automatic Headphone Output Switching<br>当插入耳机时自动切换音频输出 | ✅ | `AppleALC.kext` | |
+| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | | 使用 ALCPlugFix-Swift 在开机和睡眠唤醒后自动执行扬声器功率放大器供电指令 |
 
 ### Power, Charge, Sleep and Hibernation / 电源管理、充电、睡眠、休眠
 
@@ -61,7 +62,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | USB 2.0, USB 3.0, SD Card Reader | ✅ | `USBMap.kext` | |
 | USB 3.1 | ✅ | `SSDT-TB3` | Hotplug fully supported<br>支持全功能热插拔 |
 | USB Power Properties in macOS<br>macOS 的 USB 电源属性 | ✅ | `SSDT-XHC1-USBX` | |
-| Thunderbolt 3 Hotplug<br>雷电接口热插拔 | ✅ | `SSDT-TB3` | |
+| Thunderbolt 3 Hotplug<br>雷电接口热插拔 | ⚠️ | `SSDT-TB3` | Thunderbolt Driver 和认证可能不加载；雷电固件可能不识别 |
 
 ### Display, TrackPad and Keyboard / 显示器、触摸板和键盘
 
@@ -150,7 +151,7 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "DNVM", 0x00000000)
 
 Although OEM Intel AX200 is now supported by [itlwm](https://github.com/OpenIntelWireless/itlwm), but it is still recommended to use Broadcom Wireless card for BETTER (I mean, 100x FASTER!) performance.
 
-虽然原装的 Intel AX200 已经可被 [itlwm](https://github.com/OpenIntelWireless/itlwm) 驱动，但是仍建议使用博通无线网卡以获得 **更好** 的性能（更好，指速度快 **100 倍**）
+虽然原装的 Intel AX200 已经可被 [itlwm](https://github.com/OpenIntelWireless/itlwm) 驱动，但是仍建议使用博通无线网卡以获得 **更好** 的性能（更好，指速度快 **100 倍**）和 **更好** 的兼容性（`itlwm.kext` 不支持连接 WPA/3 Enterprise、`Airportitlwm.kext` 不支持连接隐藏 SSID）。
 
 > If you want to stick to Intel AX200, you have to manually disable `AirportFixup` & `BrcmPatchRAM`, install `itlwm`, and remove DeviceProperties of `PciRoot(0x0)/Pci(0x1D,0x5)/Pci(0x0,0x0)`.<br>
 > 如果你执意使用原装的 Intel AX200，你需要手动禁用 `AirportFixup` & `BrcmPatchRAM` 等 Kext、安装 `itlwm`，并去除 `PciRoot(0x0)/Pci(0x1D,0x5)/Pci(0x0,0x0)` 节点下的设备属性。
@@ -221,6 +222,17 @@ Everytime you rebuilt the EFI you have to fill in the SMBIOS again. So keep your
 
 每次重新编译 EFI 后你都需要重新填入一次 SMBIOS 信息，所以务必将你的 SMBIOS 信息保存在一个安全的位置！
 
+### How to fix Y9000X's speaker / 如何修复 Y9000X 的扬声器
+
+```bash
+# Clone the repo first if you haven't done so.
+# git clone https://github.com/SukkaW/Lenovo-Y9000X-Hackintosh
+cd Lenovo-Y9000X-Hackintosh
+git pull --rebase
+chmod +x **/*.sh
+./Audio/install-alcplugfix-swift.sh
+```
+
 ### Directories Structure / 项目目录结构
 
 ```
@@ -230,6 +242,7 @@ Everytime you rebuilt the EFI you have to fill in the SMBIOS again. So keep your
 │   └── SSDT
 │       ├── DSL # SSDT source dsl files
 │       └── build_acpi.sh # dsl files build script
+├── Audio
 ├── Config
 │   └── config_sample.plist # Sample config.plist
 ├── Kexts
