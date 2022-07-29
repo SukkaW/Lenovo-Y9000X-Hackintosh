@@ -761,6 +761,14 @@
 				<data>AQAAAA==</data>
 				<key>enable-hdmi-dividers-fix</key>
 				<data>AQAAAA==</data>
+				<key>enable-lspcon-support</key>
+				<data>AQAAAA==</data>
+				<key>rebuild-device-tree</key>
+				<data>AQAAAA==</data>
+				<key>rps-control</key>
+				<data>AQAAAA==</data>
+				<key>enable-backlight-smoother</key>
+				<data>AQAAAA==</data>
 				<key>enable-max-pixel-clock-override</key>
 				<data>AQAAAA==</data>
 				<key>force-online</key>
@@ -2040,7 +2048,7 @@
 				<key>SystemAudioVolumeDB</key>
 				<data>4g==</data>
 				<key>boot-args</key>
-				<string>brcmfx-country=#a alctcsel=1 brcmfx-aspm -revsbvmm igfxrpsc=1</string>
+				<string>brcmfx-country=#a alctcsel=1 brcmfx-aspm -revsbvmm igfxfw=2</string>
 				<key>csr-active-config</key>
 				<data>AAAAAA==</data>
 				<key>prev-lang:kbd</key>
