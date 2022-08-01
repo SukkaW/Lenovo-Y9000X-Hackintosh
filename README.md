@@ -50,7 +50,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | CPU Power Management (SpeedShift)<br>CPU 电源管理 | ✅ | `SSDT-XCPM` | Use `MacBookPro16,4` for beter power management<br>使用 `MacBookPro16,4` 机型以获得更好的电源管理 |
 | NVMe Drive Battery Management<br>NVMe 硬盘电源管理 | ✅ | `NVMeFix.kext` | |
 | S3 Sleep / Hibernation Mode 3<br>S3 睡眠 / Mode 3 休眠 | ✅ | `SSDT-SLEEP` | |
-| Hibernation Mode 25<br>Mode 25 休眠 | ⚠️ | `HibernationFixup.kext` | Require testing<br>有待测试 |
+| Hibernation Mode 25<br>Mode 25 休眠 | ✅ | `HibernationFixup.kext` | Works on my machine. Report an issue if you have encountered any issue.<br>测试成功。如果你在休眠时遇到问题，请反馈给我 |
 | Battery Life | ⚠️ | ASPM | WIP (仍在实现中)
 
 ### Input & Output

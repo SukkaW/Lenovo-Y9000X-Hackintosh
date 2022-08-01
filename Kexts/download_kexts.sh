@@ -127,8 +127,8 @@ function init() {
 function h_or_g() {
   if [[ "$1" == "VoodooI2C/VoodooI2C" ]]; then
     hgs=( "head -n 1" )
-  elif [[ "$1" == "cholonam/Sinetek-rtsx" ]]; then
-    hgs=( "grep -m 1 Sinetek-rtsx-" )
+  #elif [[ "$1" == "cholonam/Sinetek-rtsx" ]]; then
+  #  hgs=( "grep -m 1 Sinetek-rtsx-" )
   #elif [[ "$1" == "itlwm" ]]; then
   #  hgs=( "grep -m 1 AirportItlwm-Big_Sur"
   #        "grep -m 1 AirportItlwm-Catalina"
@@ -166,12 +166,12 @@ function dGR() {
     rawURL="https://github.com/$1/releases$tag"
 
     for hg in "${hgs[@]}"; do
-      urls+=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | eval "${hg}" | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
+      urls+=( "https://github.com$(curl --retry 3 --connect-timeout 20 -L --silent "${rawURL}" | grep '/download/' | eval "${hg}" | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
     done
   else
     rawURL="https://api.github.com/repos/$1/releases$tag"
     for hg in "${hgs[@]}"; do
-      urls+=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | eval "${hg}" | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
+      urls+=( "$(curl --retry 3 --connect-timeout 20 --silent "${rawURL}" | grep 'browser_download_url' | eval "${hg}" | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
     done
   fi
 
@@ -183,7 +183,7 @@ function dGR() {
     logger_info "Downloading ${magenta}${url##*\/}${reset}"
 
     cd ./"$3" || exit 1
-    curl -# -L -O "${url}" || networkErr "$1"
+    curl --retry 3 --connect-timeout 20 -# -L -O "${url}" || networkErr "$1"
     cd - > /dev/null 2>&1 || exit 1
   done
 }
