@@ -79,7 +79,8 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "TB30", 0x00002000)
         {
             Debug = "TB:_GPE:NTFY"
             // Patch only if in windows native mode and OSX
-            If (OSDW () && (\TWIN != Zero) && (NOHP == 0x01) && Arg0 == 0x11)
+            // If (OSDW () && (\TWIN != Zero) && (NOHP == 0x01) && Arg0 == 0x11)
+            If (OSDW () && (\TWIN != Zero) && Arg0 == 0x11)
             {
                 Debug = "SSDT_TB: _GPE:NTFY() - call AMPE ()"
 
