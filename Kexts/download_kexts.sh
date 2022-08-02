@@ -24,6 +24,7 @@ GH_KEXTS=(
     "acidanthera/Lilu"
     "acidanthera/BrightnessKeys"
     "acidanthera/NVMeFix"
+    "acidanthera/RTCMemoryFixup"
     "al3xtjames/NoTouchID"
     "zhen-zen/YogaSMC"
     "acidanthera/CPUFriend"
@@ -54,6 +55,7 @@ KEXT_ITEMS=(
     "NVMeFix.kext"
     "YogaSMC.kext"
     "CPUFriend.kext"
+    "RTCMemoryFixup.kext"
 )
 
 RETRY_MAX=5

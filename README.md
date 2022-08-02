@@ -30,7 +30,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | Feature | Status | Dependency | Remarks |
 | --- | --- | --- | --- |
 | Fingerprint Reader<br>指纹识别 | ❌ | Disabled using both SSDT & USB Mapping<br>已通过 SSDT 和 USB 定制禁用 | TouchID is not supported in Hackintosh<br>黑苹果不支持 TouchID |
-| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | | ~~Y9000X's Speaker is connected to an unsupported Power Amplifier<br>Y9000X 的扬声器连接在一个无法驱动的功率放大器上~~ 已支持 |
+| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | | ~~Y9000X's Speaker is connected to an unsupported Power Amplifier<br>Y9000X 的扬声器连接在一个无法驱动的功率放大器上~~ 已支持，参见下文 |
 
 ### Video and Audio / 音频与视频
 
@@ -40,7 +40,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | Audio Recording<br>麦克风录音 | ✅ | `AppleALC.kext` | |
 | Audio Playback through 3.5mm<br>通过 3.5mm 接口播放音频 | ✅ | `AppleALC.kext` | |
 | Automatic Headphone Output Switching<br>当插入耳机时自动切换音频输出 | ✅ | `AppleALC.kext` | |
-| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | | 使用 ALCPlugFix-Swift 在开机和睡眠唤醒后自动执行扬声器功率放大器供电指令 |
+| Audio playback through speaker<br>通过扬声器播放音频 | ✅ | ALCPlugFix-Swift | 开机、睡眠唤醒、插拔 3.5mm 耳机接口时自动执行扬声器功率放大器供电指令 |
 
 ### Power, Charge, Sleep and Hibernation / 电源管理、充电、睡眠、休眠
 
