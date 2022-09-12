@@ -795,6 +795,16 @@
 				<key>pci-aspm-default</key>
 				<data>AgAAAA==</data>
 			</dict>
+			<key>PciRoot(0x0)/Pci(0x15,0x0)</key>
+			<dict>
+				<key>pci-aspm-default</key>
+				<data>AgAAAA==</data>
+			</dict>
+			<key>PciRoot(0x0)/Pci(0x15,0x1)</key>
+			<dict>
+				<key>pci-aspm-default</key>
+				<data>AgAAAA==</data>
+			</dict>
 		</dict>
 		<key>Delete</key>
 		<dict/>
