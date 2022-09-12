@@ -740,6 +740,8 @@
 				<string>Sunrise Point-LP HD Audio</string>
 				<key>alc-verbs</key>
 				<data>AQAAAA==</data>
+				<key>pci-aspm-default</key>
+				<data>AgAAAA==</data>
 			</dict>
 			<key>PciRoot(0x0)/Pci(0x2,0x0)</key>
 			<dict>
@@ -790,6 +792,8 @@
 			<dict>
 				<key>acpi-wake-type</key>
 				<data>AQ==</data>
+				<key>pci-aspm-default</key>
+				<data>AgAAAA==</data>
 			</dict>
 		</dict>
 		<key>Delete</key>

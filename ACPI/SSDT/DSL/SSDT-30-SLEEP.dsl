@@ -261,7 +261,10 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "SLEP", 0x00001000)
         // Enable ACPI-S0-DeepIdle
         Method (LPS0, 0, NotSerialized)
         {
-            Debug = "SSDT_SLEEP: Enable S0-Sleep / DeepSleep"
+            If (DIEN == One)
+            {
+                Debug = "SLEEP: Enable S0-Sleep / DeepSleep"
+            }
 
             // If S0ID is enabled, enable deep-sleep in OSX. Can be set above.
             // Return (S0ID)
