@@ -68,7 +68,7 @@ function dGR() {
     tag="/latest"
   fi
 
-  if [[ -n ${GITHUB_ACTIONS+x} || ${gh_api} == false ]]; then
+  if [[ -n ${GITHUB_ACTIONS+x} ]]; then
     rawURL="https://github.com/$1/releases$tag"
 
     url=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | grep -m 1 RELEASE | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )

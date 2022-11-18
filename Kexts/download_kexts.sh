@@ -60,8 +60,6 @@ KEXT_ITEMS=(
 
 RETRY_MAX=5
 
-gh_api=false
-
 # Colors
 black=$(tput setaf 0)
 red=$(tput setaf 1)
@@ -164,7 +162,7 @@ function dGR() {
     tag="/latest"
   fi
 
-  if [[ -n ${GITHUB_ACTIONS+x} || ${gh_api} == false ]]; then
+  if [[ -n ${GITHUB_ACTIONS+x} ]]; then
     rawURL="https://github.com/$1/releases$tag"
 
     for hg in "${hgs[@]}"; do
