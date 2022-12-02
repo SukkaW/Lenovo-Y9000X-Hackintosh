@@ -10,7 +10,7 @@
 # Vars
 
 GH_KEXTS=(
-    "VoodooI2C/VoodooI2C"
+    # "VoodooI2C/VoodooI2C" # Use local version
     "0xFireWolf/RealtekCardReader"
     "0xFireWolf/RealtekCardReaderFriend"
     "acidanthera/VirtualSMC"
@@ -35,8 +35,8 @@ KEXT_ITEMS=(
     "AppleALC.kext"
     "HibernationFixup.kext"
     "Lilu.kext"
-    "VoodooI2C.kext"
-    "VoodooI2CHID.kext"
+    # "VoodooI2C.kext"
+    # "VoodooI2CHID.kext"
     "VoodooPS2Controller.kext"
     "WhateverGreen.kext"
     "RestrictEvents.kext"
