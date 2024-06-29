@@ -679,6 +679,8 @@
 			<true/>
 			<key>EnableWriteUnprotector</key>
 			<false/>
+			<key>FixupAppleEfiImages</key>
+			<false/>
 			<key>ForceBooterSignature</key>
 			<false/>
 			<key>ForceExitBootServices</key>
@@ -969,7 +971,7 @@
 				<key>ExecutablePath</key>
 				<string>Contents/MacOS/AirportBrcmFixup</string>
 				<key>MaxKernel</key>
-				<string>22.9.9</string>
+				<string></string>
 				<key>MinKernel</key>
 				<string></string>
 				<key>PlistPath</key>
@@ -1131,7 +1133,7 @@
 				<key>ExecutablePath</key>
 				<string>Contents/MacOS/NVMeFix</string>
 				<key>MaxKernel</key>
-				<string>22.9.9</string>
+				<string></string>
 				<key>MinKernel</key>
 				<string>18.0.0</string>
 				<key>PlistPath</key>
@@ -2377,6 +2379,18 @@
 				<false/>
 				<key>Path</key>
 				<string>ToggleSipEntry.efi</string>
+			</dict>
+			<dict>
+				<key>Arguments</key>
+				<string></string>
+				<key>Comment</key>
+				<string></string>
+				<key>Enabled</key>
+				<false/>
+				<key>LoadEarly</key>
+				<false/>
+				<key>Path</key>
+				<string>FirmwareSettingsEntry.efi</string>
 			</dict>
 		</array>
 		<key>Input</key>

@@ -89,10 +89,10 @@ function dGR() {
 }
 
 function init() {
-  if [[ ${OSTYPE} != darwin* ]]; then
-    logger_error "This script can only run in macOS, aborting"
-    exit 1
-  fi
+  # if [[ ${OSTYPE} != darwin* ]]; then
+  #   logger_error "This script can only run in macOS, aborting"
+  #   exit 1
+  # fi
 
   if [[ -d ${WSDir} ]]; then
     rm -rf "${WSDir}"
