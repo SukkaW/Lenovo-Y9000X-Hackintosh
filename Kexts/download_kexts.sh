@@ -14,7 +14,6 @@ GH_KEXTS=(
     "0xFireWolf/RealtekCardReader"
     "0xFireWolf/RealtekCardReaderFriend"
     "acidanthera/VirtualSMC"
-    "acidanthera/AirportBrcmFixup"
     "acidanthera/BrcmPatchRAM"
     "acidanthera/WhateverGreen"
     "acidanthera/AppleALC"
@@ -28,10 +27,11 @@ GH_KEXTS=(
     "al3xtjames/NoTouchID"
     "zhen-zen/YogaSMC"
     "acidanthera/CPUFriend"
+    "OpenIntelWireless/itlwm"
+    "OpenIntelWireless/IntelBluetoothFirmware"
 )
 
 KEXT_ITEMS=(
-    "AirportBrcmFixup.kext"
     "AppleALC.kext"
     "HibernationFixup.kext"
     "Lilu.kext"
@@ -104,11 +104,6 @@ function copyErr() {
 }
 
 function init() {
-  if [[ ${OSTYPE} != darwin* ]]; then
-    logger_error "This script can only run in macOS, aborting"
-    exit 1
-  fi
-
   if [[ -d ${WSDir} ]]; then
     rm -rf "${WSDir}"
   fi
@@ -137,6 +132,10 @@ function h_or_g() {
   #      )
   elif [[ "$1" == "zhen-zen/YogaSMC" ]]; then
     hgs=( "grep -m 1 YogaSMC-Release.zip" )
+  elif [[ "$1" == "OpenIntelWireless/itlwm" ]]; then
+    hgs=( "grep -m 1 _stable_Sonoma14.4.kext.zip" )
+  elif [[ "$1" == "OpenIntelWireless/IntelBluetoothFirmware" ]]; then
+    hgs=( "grep -m 1 IntelBluetooth-v" )
   else
     hgs=( "grep -m 1 RELEASE" )
   fi
@@ -162,18 +161,11 @@ function dGR() {
     tag="/latest"
   fi
 
-  if [[ -n ${GITHUB_ACTIONS+x} ]]; then
     rawURL="https://github.com/$1/releases$tag"
 
     for hg in "${hgs[@]}"; do
       urls+=( "https://github.com$(curl --retry 3 --connect-timeout 20 -L --silent "${rawURL}" | grep '/download/' | eval "${hg}" | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
     done
-  else
-    rawURL="https://api.github.com/repos/$1/releases$tag"
-    for hg in "${hgs[@]}"; do
-      urls+=( "$(curl --retry 3 --connect-timeout 20 --silent "${rawURL}" | grep 'browser_download_url' | eval "${hg}" | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
-    done
-  fi
 
   for url in "${urls[@]}"; do
     if [[ -z ${url} || ${url} == "https://github.com" ]]; then
@@ -221,7 +213,7 @@ init
 download
 unpack
 install
-cTrash
+# cTrash
 if [[ "$1" != "NOOPEN" ]]; then
   enjoy
 fi

@@ -40,11 +40,6 @@ function networkErr() {
 }
 
 function init() {
-  if [[ ${OSTYPE} != darwin* ]]; then
-    logger_error "This script can only run in macOS, aborting"
-    exit 1
-  fi
-
   logger_info "Start building ACPI"
 
   cd "$(dirname "$0")" || exit 1
@@ -68,7 +63,6 @@ function download() {
 }
 
 function compile() {
-  chmod +x iasl*
   logger_info "Start compiling ACPI Files"
   find . -name '*.dsl' -exec sh -c '
     red=$(tput setaf 1)
@@ -79,14 +73,14 @@ function compile() {
 
     echo "${gray}[$(date "+%Y-%m-%d %H:%M:%S")]${reset} ${green}INFO${reset} Compiling ${1##*/}"
 
-    ./iasl* -vw 2095 -vw 2173 -vs -p "${1%/*}/../AML/${1##*/}" "${1%}" > /dev/null 2>&1 || (
+    iasl -vw 2095 -vw 2173 -vs -p "${1%/*}/../AML/${1##*/}" "${1%}" > /dev/null 2>&1 || (
       echo "${gray}[$(date "+%Y-%m-%d %H:%M:%S")]${reset} ${red}ERROR${reset} Failed to compile dsl!"
       find . -maxdepth 1 -name "*.aml" -exec rm -rf {} + > /dev/null 2>&1
       exit 1
     )
   ' sh {} \;
 
-  rm -rf iasl*
+  rm -rf ./iasl*
 
   logger_info "ACPI build finished"
 }
