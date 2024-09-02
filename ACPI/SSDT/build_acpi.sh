@@ -32,34 +32,22 @@ function logger_error {
   echo "${gray}[$(date '+%Y-%m-%d %H:%M:%S')]${reset} ${red}ERROR${reset} $1"
 }
 
-
-# Exit on Network Issue
-function networkErr() {
-  logger_error "Failed to download resources from ${magenta}${1}${reset}, please check your connection!"
-  exit 1
-}
-
 function init() {
   logger_info "Start building ACPI"
 
+  if which iasl > /dev/null; then
+    logger_info "IASL compiler found"
+  else
+    logger_error "IASL compiler not found, please install it first! You can use 'brew install acpica'."
+    exit 1
+  fi
+
   cd "$(dirname "$0")" || exit 1
 
-  if [[ -f "iasl-stable" ]]; then
-    rm -rf "iasl-stable"
-  fi
   if [[ -d "AML" ]]; then
     rm -rf "AML"
   fi
   mkdir -p AML
-}
-
-# Download iasl from Acidanthera's MaciASL repository
-function download() {
-  local url="https://raw.githubusercontent.com/$1/$2/master/$3"
-
-  logger_info "Downloading ${magenta}${3##*\/}${reset}"
-
-  curl -# -L -O "${url}" || networkErr "${3##*\/}"
 }
 
 function compile() {
@@ -90,7 +78,6 @@ function enjoy() {
 }
 
 init
-download Acidanthera MaciASL Dist/iasl-stable
 compile
 if [[ "$1" != "NOOPEN" ]]; then
   enjoy
