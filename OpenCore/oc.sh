@@ -54,6 +54,7 @@ function copyErr() {
 function dGR() {
   local rawURL
   local url
+  local tag
 
   if [[ -n ${3+x} ]]; then
     if [[ "$2" == "PreRelease" ]]; then
@@ -68,24 +69,19 @@ function dGR() {
     tag="/latest"
   fi
 
-  if [[ -n ${GITHUB_ACTIONS+x} ]]; then
-    rawURL="https://github.com/$1/releases$tag"
 
-    url=( "https://github.com$(curl -L --silent "${rawURL}" | grep '/download/' | grep -m 1 RELEASE | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
-  else
-    rawURL="https://api.github.com/repos/$1/releases$tag"
-    url=( "$(curl --silent "${rawURL}" | grep 'browser_download_url' | grep -m 1 RELEASE | tr -d '"' | tr -d ' ' | sed -e 's/browser_download_url://')" )
+  rawURL="https://ungh.cc/repos/$1/releases$tag"
+  url=( "$(curl --silent "${rawURL}" | jq '.release.assets[].downloadUrl' | grep -m 1 RELEASE | tr -d '"')" )
+
+  if [[ -z ${url} || ${url} == "https://github.com" ]]; then
+    networkErr "$1"
   fi
 
-    if [[ -z ${url} || ${url} == "https://github.com" ]]; then
-      networkErr "$1"
-    fi
+  logger_info "Downloading ${magenta}${url##*\/}${reset}"
 
-    logger_info "Downloading ${magenta}${url##*\/}${reset}"
-
-    cd ./"$3" || exit 1
-    curl -# -L -O "${url}" || networkErr "$1"
-    cd - > /dev/null 2>&1 || exit 1
+  cd ./"$3" || exit 1
+  curl -# -L -O "${url}" || networkErr "$1"
+  cd - > /dev/null 2>&1 || exit 1
 }
 
 function init() {

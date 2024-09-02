@@ -145,6 +145,7 @@ function h_or_g() {
 function dGR() {
   local rawURL
   local urls=()
+  local tag
 
   h_or_g "$1"
 
@@ -161,11 +162,10 @@ function dGR() {
     tag="/latest"
   fi
 
-    rawURL="https://github.com/$1/releases$tag"
-
-    for hg in "${hgs[@]}"; do
-      urls+=( "https://github.com$(curl --retry 3 --connect-timeout 20 -L --silent "${rawURL}" | grep '/download/' | eval "${hg}" | sed 's/^[^"]*"\([^"]*\)".*/\1/')" )
-    done
+  rawURL="https://ungh.cc/repos/$1/releases$tag"
+  for hg in "${hgs[@]}"; do
+    urls+=( "$(curl --silent "${rawURL}"  | jq '.release.assets[].downloadUrl' | grep -m 1 RELEASE | tr -d '"')" )
+  done
 
   for url in "${urls[@]}"; do
     if [[ -z ${url} || ${url} == "https://github.com" ]]; then
