@@ -45,9 +45,6 @@ KEXT_ITEMS=(
     "Kexts/SMCLightSensor.kext"
     "Kexts/SMCProcessor.kext"
     "Kexts/VirtualSMC.kext"
-    "BrcmBluetoothInjector.kext"
-    "BrcmFirmwareData.kext"
-    "BrcmPatchRAM3.kext"
     "BlueToolFixup.kext"
     "BrightnessKeys.kext"
     "RealtekCardReader.kext"
@@ -56,6 +53,9 @@ KEXT_ITEMS=(
     "YogaSMC.kext"
     "CPUFriend.kext"
     "RTCMemoryFixup.kext"
+    "IntelBluetoothFirmware.kext"
+    "IntelBTPatcher.kext"
+    "AirportItlwm.kext"
 )
 
 RETRY_MAX=5
@@ -164,7 +164,7 @@ function dGR() {
 
   rawURL="https://ungh.cc/repos/$1/releases$tag"
   for hg in "${hgs[@]}"; do
-    urls+=( "$(curl --silent "${rawURL}"  | jq '.release.assets[].downloadUrl' | grep -m 1 RELEASE | tr -d '"')" )
+    urls+=( "$(curl --silent "${rawURL}"  | jq '.release.assets[].downloadUrl' | eval "${hg}" | tr -d '"')" )
   done
 
   for url in "${urls[@]}"; do
@@ -194,6 +194,8 @@ function unpack() {
 
 # Install
 function install() {
+  tree "${OUTDir_TMP}"
+
   for kextItem in "${KEXT_ITEMS[@]}"; do
     cp -R "${OUTDir_TMP}/${kextItem}" . || copyErr
   done
@@ -213,7 +215,7 @@ init
 download
 unpack
 install
-# cTrash
+cTrash
 if [[ "$1" != "NOOPEN" ]]; then
   enjoy
 fi
