@@ -21,7 +21,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 | Memory | DDR4 2666 Mhz. 2x16 GB |
 | NVMe SSD | Manually switch to PLEXTOR PX-1TM9PGN+ 1024GiB |
 | Integrated Graphics | Intel UHD Graphics 630 |
-| Wireless Card | Manually change to BCM94354Z |
+| Wireless Card | Intel AX200 |
 
 ## Working & Not Working / 可用与不可用的功能
 
@@ -57,8 +57,8 @@ Your warranty is now void. Please do some research if you have any concerns befo
 
 | Feature | Status | Dependency | Remarks |
 | --- | --- | --- | --- |
-| WiFi | ✅ | `AirportFixup.kext` | Suggest to switch Broadcom based card<br>推荐更换博通无线网卡 |
-| Bluetooth | ✅ | `BrcmPatchRAM.kext` | Suggest to switch Broadcom based card<br>推荐更换博通无线网卡 |
+| WiFi | ✅ | `AirportItlwm.kext` | Intel AX200<br>Intel AX200 |
+| Bluetooth | ✅ | `IntelBTPatcher.kext`, `IntelBluetoothFirmware.kext`, `BlueToolFixup.kext` | Intel AX200<br>Intel AX200 |
 | USB 2.0, USB 3.0, SD Card Reader | ✅ | `USBMap.kext` | |
 | USB 3.1 | ✅ | `SSDT-TB3` | Hotplug fully supported<br>支持全功能热插拔 |
 | USB Power Properties in macOS<br>macOS 的 USB 电源属性 | ✅ | `SSDT-XHC1-USBX` | |
@@ -95,8 +95,8 @@ Your warranty is now void. Please do some research if you have any concerns befo
 
 - A macOS machine (optional): to create the macOS installer and build the EFI.
   一台已经安装好 macOS 的机器，用于制作 macOS 安装器和编译本项目
-- Flash drive, 12GB or more, for the above purpose.
-  一个容量大于等于 12 GiB 的 U 盘
+- Flash drive, 32 GiB or more, for the above purpose.
+  一个容量大于等于 32 GiB 的 U 盘
 - [ProperTree](https://github.com/corpnewt/ProperTree) to edit plist files on Windows.
   编辑 plist 文件的工具 [ProperTree](https://github.com/corpnewt/ProperTree)
 - [MaciASL](https://github.com/acidanthera/MaciASL) for patching ACPI tables and editing ACPI patches.
@@ -149,12 +149,9 @@ DefinitionBlock ("", "SSDT", 2, "SUKA", "DNVM", 0x00000000)
 
 #### Wireless Card / 无线网卡
 
-Although OEM Intel AX200 is now supported by [itlwm](https://github.com/OpenIntelWireless/itlwm), but it is still recommended to use Broadcom Wireless card for BETTER (I mean, 100x FASTER!) performance.
+Use [OpenIntelWireless](https://github.com/OpenIntelWireless) to support Intel AX200 since legacy Broadcom card is no longer supported by newer macOS.
 
-虽然原装的 Intel AX200 已经可被 [itlwm](https://github.com/OpenIntelWireless/itlwm) 驱动，但是仍建议使用博通无线网卡以获得 **更好** 的性能（更好，指速度快 **100 倍**）和 **更好** 的兼容性（`itlwm.kext` 不支持连接 WPA/3 Enterprise、`Airportitlwm.kext` 不支持连接隐藏 SSID）。
-
-> If you want to stick to Intel AX200, you have to manually disable `AirportFixup` & `BrcmPatchRAM`, install `itlwm`, and remove DeviceProperties of `PciRoot(0x0)/Pci(0x1D,0x5)/Pci(0x0,0x0)`.<br>
-> 如果你执意使用原装的 Intel AX200，你需要手动禁用 `AirportFixup` & `BrcmPatchRAM` 等 Kext、安装 `itlwm`，并去除 `PciRoot(0x0)/Pci(0x1D,0x5)/Pci(0x0,0x0)` 节点下的设备属性。
+使用 [OpenIntelWireless](https://github.com/OpenIntelWireless) 支持 Intel AX200，因为旧版的博通无线网卡已经不再被新版 macOS 支持。
 
 ### Update or Downgrade BIOS Version / 升级或降级 BIOS
 
@@ -195,7 +192,7 @@ Use following command to build the EFI.
 使用下述指令编译 EFI：
 
 ```bash
-git clone https://github.com/SukkaW/Lenovo-Y9000X-Hackintosh
+git clone --filter=blob:none https://github.com/SukkaW/Lenovo-Y9000X-Hackintosh
 cd Lenovo-Y9000X-Hackintosh
 chmod +x **/*.sh
 ./build.sh
