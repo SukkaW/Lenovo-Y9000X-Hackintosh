@@ -1,5 +1,4 @@
-OUTDir_TMP="tmp"
-InstallTargetDir="$HOME/.config/ALCPlugFix-Swift-Y9000X-Sukka"
+OUTDir_TMP=".tmp-ALCPlugFix-Swift-Y9000X-Sukka"
 
 # Get hold of actual directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -41,110 +40,460 @@ function copyErr() {
   exit 1
 }
 
-function init() {
-  if [[ ${OSTYPE} != darwin* ]]; then
-    logger_error "This script can only run in macOS, aborting"
-    exit 1
-  fi
-
-  if [[ -d ${OUTDir_TMP} ]]; then
-    rm -rf "${OUTDir_TMP}"
-  fi
-  mkdir "${OUTDir_TMP}" || exit 1
-}
-
 # Function that exits with an error code and message
 function abort() {
     logger_error $1
     exit 1
 }
 
-# Download GitHub Release
-function dGR() {
-  local rawURL
-  local url
-  local tag
+if [[ ${OSTYPE} != darwin* ]]; then
+  logger_error "This script can only run in macOS, aborting"
+  exit 1
+fi
 
-  if [[ -n ${3+x} ]]; then
-    if [[ "$2" == "PreRelease" ]]; then
-      tag=""
-    elif [[ "$2" == "NULL" ]]; then
-      tag="/latest"
-    else
-      # only release_id is supported
-      tag="/$2"
-    fi
-  else
-    tag="/latest"
-  fi
+if [[ -d ${OUTDir_TMP} ]]; then
+  rm -rf "${OUTDir_TMP}"
+fi
+mkdir "${OUTDir_TMP}" || exit 1
 
-  rawURL="https://ungh.cc/repos/$1/releases$tag"
-  url=( "$(curl --silent "${rawURL}" | jq '.release.assets[].downloadUrl' | grep -m 1 RELEASE | tr -d '"')" )
+curl -L -o ${OUTDir_TMP}/ALCPlugFix.zip https://github.com/black-dragon74/ALCPlugFix-Swift/releases/download/1.5/ALCPlugFix-Swift-RELEASE-1.5.zip
 
-  if [[ -z ${url} || ${url} == "https://github.com" ]]; then
-    networkErr "$1"
-  fi
+logger_info "Unpacking files"
+eval "$(cd ${OUTDir_TMP} && unzip -qq "*.zip" || exit 1)"
 
-  logger_info "Downloading ${magenta}${url##*\/}${reset}"
+logger_info "Uninstall previous installation if any"
+logger_info "You might be prompted to enter your password since it will unload existing LaunchAgents and LaunchDaemons"
 
-  cd ./"$3" || exit 1
-  curl -# -L -O "${url}" || networkErr "$1"
-  cd - > /dev/null 2>&1 || exit 1
-}
+# Remove codec commander based ALCPlugFix
+sudo launchctl unload /Library/LaunchAgents/good.win.ALCPlugFix.plist
+sudo rm -rf /Library/LaunchAgents/good.win.ALCPlugFix.plist
+# Remove any existing alc-verb install
+sudo launchctl unload /Library/LaunchAgents/com.black-dragon74.ALCPlugFix.plist
+sudo rm -rf /Library/LaunchAgents/com.black-dragon74.ALCPlugFix.plist
+# Remove previous LaunchDaemons
+sudo launchctl unload /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
+sudo rm -rf /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
+# Cleanup old folders
+sudo rm -rf /Library/Preferences/ALCPlugFix
+sudo rm -rf "$HOME/.config/ALCPlugFix-Swift-Y9000X-Sukka"
 
-# Unpack
-function unpack() {
-  logger_info "Unpacking files"
-  eval "$(cd ${OUTDir_TMP} && unzip -qq "*.zip" || exit 1)"
-}
+logger_info "Copying ALCPlugFix binary"
+logger_info "You might be prompted to enter your password during the installation since the file will be installed under your /Library/LaunchAgents directory"
 
-function copy() {
-  logger_info "Creating directory ~/.config/ALCPlugFix-Swift-Y9000X-Sukka"
-  mkdir -p $InstallTargetDir
-  logger_info "Copying configuration files to your Home folders"
-  cp -R "Audio/ALCPlugFixConfigY9000XSukka.plist" $InstallTargetDir || copyErr
-}
+if [[ ! -d /usr/local/bin ]]; then
+  sudo mkdir -p /usr/local/bin
+fi
 
-function cleanUpOldInstall() {
-    logger_info "Uninstall previous installation if any"
-    logger_info "You might be prompted to enter your password since it will unload existing LaunchAgents and LaunchDaemons"
+sudo cp "$OUTDir_TMP/ALCPlugFix-Swift" /usr/local/bin/ALCPlugFix || copyErr
+sudo chmod 755 /usr/local/bin/ALCPlugFix
+sudo chown root:wheel /usr/local/bin/ALCPlugFix
 
-    # Remove codec commander based ALCPlugFix
-    sudo launchctl unload /Library/LaunchAgents/good.win.ALCPlugFix.plist
-    sudo rm -rf /Library/LaunchAgents/good.win.ALCPlugFix.plist
+if [[ ! -d /Library/Preferences/ALCPlugFix ]]; then
+  sudo mkdir -p /Library/Preferences/ALCPlugFix
+fi
 
-    # Remove any existing alc-verb install
-    sudo launchctl unload /Library/LaunchAgents/com.black-dragon74.ALCPlugFix.plist
-    sudo rm -rf /Library/LaunchAgents/com.black-dragon74.ALCPlugFix.plist
+cat <<'EOF' >"${OUTDir_TMP}/com.black-dragon74.ALCPlugFix.plist"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>KeepAlive</key>
+    <true/>
+    <key>Label</key>
+    <string>com.black-dragon74.ALCPlugFix</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/ALCPlugFix</string>
+        <string>/Library/Preferences/ALCPlugFix/ALCPlugFixConfigY9000XSukka.plist</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>ServiceIPC</key>
+    <false/>
+</dict>
+</plist>
+EOF
 
-    sudo launchctl unload /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
-    sudo rm -rf /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
-}
+cat <<'EOF' >"${OUTDir_TMP}/ALCPlugFixConfigY9000XSukka.plist"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <array>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x500 0x24</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x24</string>
+      <key>Verb</key>
+      <string>0x500</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x41</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x41</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x500 0x26</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x26</string>
+      <key>Verb</key>
+      <string>0x500</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x2</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x2</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x0</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x0</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x0</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x0</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x4b0 0x20</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x20</string>
+      <key>Verb</key>
+      <string>0x4b0</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x500 0x24</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x24</string>
+      <key>Verb</key>
+      <string>0x500</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x42</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x42</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x500 0x26</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x26</string>
+      <key>Verb</key>
+      <string>0x500</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x2</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x2</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x0</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x0</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x400 0x0</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x0</string>
+      <key>Verb</key>
+      <string>0x400</string>
+    </dict>
+    <dict>
+      <key>Comment</key>
+      <string>0x20 0x4b0 0x20</string>
+      <key>Enabled</key>
+      <true />
+      <key>Node ID</key>
+      <string>0x20</string>
+      <key>On Boot</key>
+      <true />
+      <key>On Connect</key>
+      <false />
+      <key>On Disconnect</key>
+      <true />
+      <key>On Mute</key>
+      <false />
+      <key>On Sleep</key>
+      <false />
+      <key>On Unmute</key>
+      <true />
+      <key>On Wake</key>
+      <true />
+      <key>Param</key>
+      <string>0x20</string>
+      <key>Verb</key>
+      <string>0x4b0</string>
+    </dict>
+  </array>
+</plist>
+EOF
 
-function install() {
-  logger_info "Creating ALCPlugFix launchd file"
-  $pledit -c "Set ProgramArguments:1 ${InstallTargetDir}/ALCPlugFixConfigY9000XSukka.plist" ${OUTDir_TMP}/com.black-dragon74.ALCPlugFix.plist || abort "Failed to write to launchd file"
+sudo cp "${OUTDir_TMP}/ALCPlugFixConfigY9000XSukka.plist" /Library/Preferences/ALCPlugFix
+sudo chmod 644 /Library/Preferences/ALCPlugFix/ALCPlugFixConfigY9000XSukka.plist
+sudo chown root:wheel /Library/Preferences/ALCPlugFix/ALCPlugFixConfigY9000XSukka.plist
 
-  logger_info "Copying ALCPlugFix binary and launchd files"
-  logger_info "You might be prompted to enter your password during the installation since the file will be installed under your /Library/LaunchDaemons directory"
-  sudo cp "$OUTDir_TMP/ALCPlugFix-Swift" /usr/local/bin/ALCPlugFix || copyErr
-  sudo cp "$OUTDir_TMP/com.black-dragon74.ALCPlugFix.plist" /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist || copyErr
+sudo cp "${OUTDir_TMP}/com.black-dragon74.ALCPlugFix.plist" /Library/LaunchDaemons
+sudo chmod 644 /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
+sudo chown root:wheel /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
+sudo launchctl load /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
 
-  logger_info "Setting correct file permission"
-  sudo chmod 755 /usr/local/bin/ALCPlugFix
-  sudo chmod 644 /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
-  sudo chown root:wheel /usr/local/bin/ALCPlugFix
-  sudo chown root:wheel /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
-
-  logger_info "Start ALCPlugFix at login"
-  sudo launchctl load /Library/LaunchDaemons/com.black-dragon74.ALCPlugFix.plist
-
-  logger_info "ALCPlugFix installation finished!"
-}
-
-init
-dGR "black-dragon74/ALCPlugFix-Swift" NULL ${OUTDir_TMP}
-unpack
-copy
-cleanUpOldInstall
-install
+logger_info "ALCPlugFix installation finished!"
