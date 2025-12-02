@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://pic.skk.moe/file/sukkaw/gh/y9000x-hackintosh-banner.png" width="350px">
+<img src="https://img.skk.moe/gh/y9000x-hackintosh-banner.png" width="350px">
 </div>
 
 <h1 align="center">Lenovo LEGION Y9000X 2020 Hackintosh</h1>
