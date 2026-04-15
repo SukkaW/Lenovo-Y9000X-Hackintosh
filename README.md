@@ -114,7 +114,7 @@ Your warranty is now void. Please do some research if you have any concerns befo
 
 #### SSD
 
-Samusung PM981 is not supported AT ALL. Make sure to switch at least one SSD and diable another PM981 (if exists) with SSDT.
+Samusung PM981 is not supported AT ALL. Make sure to switch at least one SSD and disable another PM981 (if exists) with SSDT.
 
 三星 PM981 **完全** 无法使用，务必更换至少一块 SSD 硬盘，并通过 SSDT 屏蔽另外一块 PM981（如果存在的话）。
 
